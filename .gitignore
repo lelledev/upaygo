@@ -1,6 +1,6 @@
-/.idea
-/vendor
-/docs
+.idea
+vendor
+.vscode
 
-/upaygo.iml
-/config.json
+upaygo.iml
+config.json

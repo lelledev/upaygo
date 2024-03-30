@@ -31,9 +31,10 @@ func Create(a appamount.Amount, p apppaymentsource.Source, c appcustomer.Custome
 		Amount:             stripe.Int64(int64(a.GetAmount())),
 		Currency:           stripe.String(a.GetCurrency().GetISO4217()),
 		PaymentMethod:      stripe.String(p.GetGatewayReference()),
-		SetupFutureUsage:   stripe.String("off_session"),
 		ConfirmationMethod: stripe.String("manual"),
 		CaptureMethod:      stripe.String("manual"),
+		OffSession:         stripe.Bool(true),
+		Confirm:            stripe.Bool(true),
 	}
 
 	if c != nil {

@@ -2,18 +2,11 @@
 
 go fmt ./...
 golint .
-go test ./... -tags=unit -failfast
-# shellcheck disable=SC2181
-if [ $? != 0 ]
-then
-    echo "Committed code break unit tests"
-    exit 1
-fi
 
-go test ./... -tags=stripe -failfast -config=ABS_PATH/config.json
+go test ./... -failfast
 # shellcheck disable=SC2181
 if [ $? != 0 ]
 then
-    echo "Committed code break Stripe tests"
+    echo "Committed code break tests"
     exit 1
 fi

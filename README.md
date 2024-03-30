@@ -60,8 +60,7 @@ go run main.go -config=config.json
 ## Tests
 
 ```bash
-go test ./... -failfast -tags=unit
-go test ./... -failfast -tags=stripe -config=ABS_PATH/config.json
+go test ./... -failfast
 ```
 
 ### APIs

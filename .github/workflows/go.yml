@@ -33,11 +33,8 @@ jobs:
           cp config.json.dist config.json
           sed -i 's/pk_xxx/${{ secrets.STRIPE_PK }}/g; s/sk_xxx/${{ secrets.STRIPE_SK }}/g' config.json
 
-      - name: Tests - Unit
-        run: go test ./... -failfast -tags=unit
-
-      - name: Tests - Stripe
-        run: go test ./... -failfast -tags=stripe -config=/home/runner/work/upaygo/upaygo/config.json
+      - name: Run Tests
+        run: go test ./... -failfast
 
       - name: Build
         run: go build -v .
