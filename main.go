@@ -17,6 +17,8 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
 	"github.com/gorilla/mux"
+
+	_ "github.com/lelledaniele/upaygo/docs" // for swagger documentation generation
 )
 
 var configFile string
