@@ -38,7 +38,6 @@ func Create(a appamount.Amount, p apppaymentsource.Source, c appcustomer.Custome
 
 	if c != nil {
 		ic.Customer = stripe.String(c.GetGatewayReference())
-		ic.SavePaymentMethod = stripe.Bool(true)
 	}
 
 	intent, e := paymentintent.New(ic)
