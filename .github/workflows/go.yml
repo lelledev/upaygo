@@ -15,7 +15,7 @@ jobs:
         id: go
 
       - name: Swagger - Installation
-        run: go get -u github.com/swaggo/swag/cmd/swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
 
       - name: Swagger - Init
         run: ~/go/bin/swag init
