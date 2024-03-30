@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apprestintentcancel_test
@@ -18,8 +19,8 @@ import (
 	appcurrency "github.com/lelledaniele/upaygo/currency"
 
 	"github.com/gorilla/mux"
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/paymentintent"
 )
 
 const (

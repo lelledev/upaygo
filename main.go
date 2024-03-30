@@ -14,7 +14,7 @@ import (
 	apprestintentcreate "github.com/lelledaniele/upaygo/controller/rest/intent/create"
 	apprestintentget "github.com/lelledaniele/upaygo/controller/rest/intent/get"
 
-	httpSwagger "github.com/swaggo/http-swagger"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 
 	"github.com/gorilla/mux"
 )

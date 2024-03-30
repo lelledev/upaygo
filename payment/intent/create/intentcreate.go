@@ -10,8 +10,8 @@ import (
 	apppaymentintent "github.com/lelledaniele/upaygo/payment/intent"
 	apppaymentsource "github.com/lelledaniele/upaygo/payment/source"
 
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/paymentintent"
 )
 
 // Create creates an intent in Stripe and returns it as an instance of Intent

@@ -7,7 +7,7 @@ import (
 	appcustomer "github.com/lelledaniele/upaygo/customer"
 	apppaymentsource "github.com/lelledaniele/upaygo/payment/source"
 
-	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/v76"
 )
 
 func FromStripeToAppIntent(intent stripe.PaymentIntent) Intent {

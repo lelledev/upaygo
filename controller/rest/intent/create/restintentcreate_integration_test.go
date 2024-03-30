@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apprestintentcreate_test
@@ -13,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stripe/stripe-go/customer"
+	"github.com/stripe/stripe-go/v76/customer"
 
 	appconfig "github.com/lelledaniele/upaygo/config"
 	apprestintentcreate "github.com/lelledaniele/upaygo/controller/rest/intent/create"

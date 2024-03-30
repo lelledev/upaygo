@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apppaymentintentcreate_test
@@ -15,8 +16,8 @@ import (
 	apppaymentintentcreate "github.com/lelledaniele/upaygo/payment/intent/create"
 	apppaymentsource "github.com/lelledaniele/upaygo/payment/source"
 
-	"github.com/stripe/stripe-go/customer"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v76/customer"
+	"github.com/stripe/stripe-go/v76/paymentintent"
 )
 
 func TestMain(m *testing.M) {

@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package appcustomer_test
@@ -8,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stripe/stripe-go/customer"
+	"github.com/stripe/stripe-go/v76/customer"
 
 	appcurrency "github.com/lelledaniele/upaygo/currency"
 

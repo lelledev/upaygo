@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apppaymentintentconfirm_test
@@ -12,8 +13,8 @@ import (
 	appcurrency "github.com/lelledaniele/upaygo/currency"
 	apppaymentintentconfirm "github.com/lelledaniele/upaygo/payment/intent/confirm"
 
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/paymentintent"
 )
 
 func TestMain(m *testing.M) {

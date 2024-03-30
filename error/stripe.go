@@ -3,7 +3,7 @@ package apperror
 import (
 	"encoding/json"
 
-	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/v76"
 )
 
 // Stripe returns a built-in error

@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apppaymentintentget_test
@@ -12,8 +13,8 @@ import (
 	appcurrency "github.com/lelledaniele/upaygo/currency"
 	apppaymentintentget "github.com/lelledaniele/upaygo/payment/intent/get"
 
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/paymentintent"
 )
 
 func TestMain(m *testing.M) {

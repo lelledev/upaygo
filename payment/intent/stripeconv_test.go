@@ -1,3 +1,4 @@
+//go:build unit
 // +build unit
 
 package apppaymentintent_test
@@ -7,7 +8,7 @@ import (
 
 	apppaymentintent "github.com/lelledaniele/upaygo/payment/intent"
 
-	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/v76"
 )
 
 func TestFromStripeToAppIntent(t *testing.T) {
