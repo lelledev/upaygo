@@ -14,7 +14,7 @@ jobs:
         id: go
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v1
+        uses: actions/checkout@v6
 
       - name: Swagger - Installation
         run: go get -u github.com/swaggo/swag/cmd/swag
