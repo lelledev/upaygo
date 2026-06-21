@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package appcustomer_test
@@ -10,10 +11,10 @@ import (
 
 	"github.com/stripe/stripe-go/customer"
 
-	appcurrency "github.com/lelledaniele/upaygo/currency"
+	appcurrency "github.com/lelledev/upaygo/currency"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
-	appcustomer "github.com/lelledaniele/upaygo/customer"
+	appconfig "github.com/lelledev/upaygo/config"
+	appcustomer "github.com/lelledev/upaygo/customer"
 )
 
 func TestMain(m *testing.M) {
@@ -32,11 +33,10 @@ func TestMain(m *testing.M) {
 		fmt.Printf("Impossible to get configuration file: %v\n", e)
 		os.Exit(1)
 	}
-	defer fc.Close()
-
 	e = appconfig.ImportConfig(fc)
+	_ = fc.Close()
 	if e != nil {
-		fmt.Printf("Error durring file config import: %v", e)
+		fmt.Printf("Error during file config import: %v", e)
 		os.Exit(1)
 	}
 

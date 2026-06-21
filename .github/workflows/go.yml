@@ -1,23 +1,23 @@
 name: Go
 on: [push]
 jobs:
-
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
-
-      - name: Set up Go 1.14
-        uses: actions/setup-go@v4.0.1
+      - name: Set up Go
+        uses: actions/setup-go@v6
         with:
-          go-version: 1.14
+          go-version: 1.26
         id: go
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v1
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Swagger - Installation
-        run: go get -u github.com/swaggo/swag/cmd/swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
 
       - name: Swagger - Init
         run: ~/go/bin/swag init
@@ -35,11 +35,11 @@ jobs:
           cp config.json.dist config.json
           sed -i 's/pk_xxx/${{ secrets.STRIPE_PK }}/g; s/sk_xxx/${{ secrets.STRIPE_SK }}/g' config.json
 
+      - name: Build
+        run: go build -v .
+
       - name: Tests - Unit
         run: go test ./... -failfast -tags=unit
 
       - name: Tests - Stripe
         run: go test ./... -failfast -tags=stripe -config=/home/runner/work/upaygo/upaygo/config.json
-
-      - name: Build
-        run: go build -v .

@@ -11,7 +11,7 @@ updates:
       interval: "weekly"
       day: "saturday"
     assignees:
-      - "lelledaniele"
+      - "lelledev"
 
   - package-ecosystem: "gomod"
     directory: "/"
@@ -19,4 +19,4 @@ updates:
       interval: "weekly"
       day: "saturday"
     assignees:
-      - "lelledaniele"
+      - "lelledev"

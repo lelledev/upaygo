@@ -3,12 +3,12 @@ package appcustomer
 import (
 	"errors"
 
-	apperror "github.com/lelledaniele/upaygo/error"
+	apperror "github.com/lelledev/upaygo/error"
 
 	"github.com/stripe/stripe-go/customer"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
-	appcurrency "github.com/lelledaniele/upaygo/currency"
+	appconfig "github.com/lelledev/upaygo/config"
+	appcurrency "github.com/lelledev/upaygo/currency"
 
 	"github.com/stripe/stripe-go"
 )

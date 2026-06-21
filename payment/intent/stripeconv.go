@@ -3,9 +3,9 @@ package apppaymentintent
 import (
 	"time"
 
-	appamount "github.com/lelledaniele/upaygo/amount"
-	appcustomer "github.com/lelledaniele/upaygo/customer"
-	apppaymentsource "github.com/lelledaniele/upaygo/payment/source"
+	appamount "github.com/lelledev/upaygo/amount"
+	appcustomer "github.com/lelledev/upaygo/customer"
+	apppaymentsource "github.com/lelledev/upaygo/payment/source"
 
 	"github.com/stripe/stripe-go"
 )

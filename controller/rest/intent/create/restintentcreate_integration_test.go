@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apprestintentcreate_test
@@ -6,7 +7,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -15,10 +16,10 @@ import (
 
 	"github.com/stripe/stripe-go/customer"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
-	apprestintentcreate "github.com/lelledaniele/upaygo/controller/rest/intent/create"
-	appcurrency "github.com/lelledaniele/upaygo/currency"
-	appcustomer "github.com/lelledaniele/upaygo/customer"
+	appconfig "github.com/lelledev/upaygo/config"
+	apprestintentcreate "github.com/lelledev/upaygo/controller/rest/intent/create"
+	appcurrency "github.com/lelledev/upaygo/currency"
+	appcustomer "github.com/lelledev/upaygo/customer"
 )
 
 const (
@@ -50,11 +51,10 @@ func TestMain(m *testing.M) {
 		fmt.Printf("Impossible to get configuration file: %v\n", e)
 		os.Exit(1)
 	}
-	defer fc.Close()
-
 	e = appconfig.ImportConfig(fc)
+	_ = fc.Close()
 	if e != nil {
-		fmt.Printf("Error durring file config import: %v", e)
+		fmt.Printf("Error during file config import: %v", e)
 		os.Exit(1)
 	}
 
@@ -79,7 +79,7 @@ func Test(t *testing.T) {
 	apprestintentcreate.Handler(w, req)
 
 	res := w.Result()
-	resBody, e := ioutil.ReadAll(res.Body)
+	resBody, e := io.ReadAll(res.Body)
 	if e != nil {
 		t.Errorf(errorRestCreateIntent, e)
 	}
@@ -114,7 +114,7 @@ func TestWithoutCustomer(t *testing.T) {
 	apprestintentcreate.Handler(w, req)
 
 	res := w.Result()
-	resBody, e := ioutil.ReadAll(res.Body)
+	resBody, e := io.ReadAll(res.Body)
 	_ = res.Body.Close()
 	if e != nil {
 		t.Errorf(errorRestCreateIntent, e)

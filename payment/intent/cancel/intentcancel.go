@@ -3,10 +3,10 @@ package apppaymentintentcancel
 import (
 	"errors"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
-	appcurrency "github.com/lelledaniele/upaygo/currency"
-	apperror "github.com/lelledaniele/upaygo/error"
-	apppaymentintent "github.com/lelledaniele/upaygo/payment/intent"
+	appconfig "github.com/lelledev/upaygo/config"
+	appcurrency "github.com/lelledev/upaygo/currency"
+	apperror "github.com/lelledev/upaygo/error"
+	apppaymentintent "github.com/lelledev/upaygo/payment/intent"
 
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/paymentintent"

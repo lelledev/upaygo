@@ -4,3 +4,16 @@
 
 /upaygo.iml
 /config.json
+
+.DS_Store
+
+# Claude Code — personal/local settings
+.claude/settings.local.json
+
+# Claude Code — anything machine-specific or with secrets
+.claude/**/*.local.json
+.claude/.credentials.json
+
+# If you ever drop env files or MCP configs with tokens in here
+.claude/**/.env
+.mcp.local.json

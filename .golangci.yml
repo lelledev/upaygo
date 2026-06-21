@@ -1,0 +1,55 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  # "standard" enables the default set (errcheck, govet, ineffassign,
+  # staticcheck, unused). Use "none" to start from scratch.
+  default: standard
+  enable:
+    - bodyclose # checks HTTP response bodies are closed
+    - gocritic # opinionated, high-signal checks
+    - gocyclo # cyclomatic complexity
+    - gosec # security issues
+    - misspell # spelling in comments/strings
+    - nilerr # returning nil after a non-nil error
+    - revive # fast, configurable golint replacement
+    - unconvert # unnecessary type conversions
+    - unparam # unused function parameters
+    - whitespace # leading/trailing whitespace
+
+  settings:
+    gocyclo:
+      min-complexity: 15
+    gosec:
+      excludes:
+        - G104 # often noisy; errcheck covers unhandled errors
+    revive:
+      rules:
+        - name: exported
+          disabled: false
+
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - std-error-handling
+    rules:
+      # Relax some linters in test files
+      - path: _test\.go
+        linters:
+          - gosec
+          - gocyclo
+          - unparam
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      # Replace with your module path so your own packages group separately
+      local-prefixes:
+        - github.com/lelledev/upaygo

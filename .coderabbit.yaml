@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en-GB
+early_access: false
+
+reviews:
+  profile: assertive
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+
+  # Skip noise; Go-specific generated/vendored paths
+  path_filters:
+    - "!**/vendor/**"
+    - "!**/*.pb.go" # protoc-generated
+    - "!**/*_gen.go" # go:generate output
+    - "!**/mocks/**"
+    - "!**/testdata/**"
+    - "!go.sum"
+
+  # Targeted guidance CodeRabbit applies per matched path
+  path_instructions:
+    - path: "**/*.go"
+      instructions: |
+        Flag any error that is returned but not wrapped with context (prefer fmt.Errorf("...: %w", err)).
+        Ensure every goroutine has a clear exit path and respects context cancellation.
+        Check that resources (rows, response bodies, files) are closed, ideally via defer.
+        Verify exported identifiers have doc comments starting with the identifier name.
+        Watch for unchecked type assertions and missing nil checks on map/slice access.
+    - path: "**/*_test.go"
+      instructions: |
+        Prefer table-driven tests; check that subtests use t.Run with descriptive names.
+        Flag tests that don't call t.Parallel() where safe, and missing t.Cleanup usage.
+        Ensure assertions cover error paths, not just the happy path.
+    - path: "**/*.go"
+      instructions: |
+        Whenever you identify a concrete fix, ALWAYS provide it as a committable
+        GitHub suggestion using a ```suggestion fenced block so it can be applied
+        with the "Commit suggestion" button. Keep each suggestion to the exact
+        lines being changed so the diff stays clean and one-click-appliable.
+        Prefer a committable suggestion over a prose-only description of the fix.
+        If a fix spans multiple files or is too large for a single suggestion,
+        give the smallest committable hunk plus a short note for the rest.
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+      - "release/.*"
+
+  tools:
+    golangci-lint:
+      enabled: true
+      # Point at your existing config; CodeRabbit also auto-detects
+      # .golangci.yml / .golangci.yaml / .golangci.toml / .golangci.json
+      config_file: .golangci.yml
+    gitleaks:
+      enabled: true # secret scanning — useful given payment/API key work
+    yamllint:
+      enabled: true
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: auto

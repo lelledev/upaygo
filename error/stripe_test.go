@@ -1,3 +1,4 @@
+//go:build unit
 // +build unit
 
 package apperror_test
@@ -6,7 +7,7 @@ import (
 	"errors"
 	"testing"
 
-	apperror "github.com/lelledaniele/upaygo/error"
+	apperror "github.com/lelledev/upaygo/error"
 )
 
 func TestGetStripeErrorMessage(t *testing.T) {

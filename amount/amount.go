@@ -1,7 +1,7 @@
 package appamount
 
 import (
-	appcurrency "github.com/lelledaniele/upaygo/currency"
+	appcurrency "github.com/lelledev/upaygo/currency"
 )
 
 type Amount interface {

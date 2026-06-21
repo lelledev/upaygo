@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apprestintentcancel_test
@@ -6,16 +7,17 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
+
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
-	apprestintentcancel "github.com/lelledaniele/upaygo/controller/rest/intent/cancel"
-	appcurrency "github.com/lelledaniele/upaygo/currency"
+	appconfig "github.com/lelledev/upaygo/config"
+	apprestintentcancel "github.com/lelledev/upaygo/controller/rest/intent/cancel"
+	appcurrency "github.com/lelledev/upaygo/currency"
 
 	"github.com/gorilla/mux"
 	"github.com/stripe/stripe-go"
@@ -51,11 +53,10 @@ func TestMain(m *testing.M) {
 		fmt.Printf("Impossible to get configuration file: %v\n", e)
 		os.Exit(1)
 	}
-	defer fc.Close()
-
 	e = appconfig.ImportConfig(fc)
+	_ = fc.Close()
 	if e != nil {
-		fmt.Printf("Error durring file config import: %v", e)
+		fmt.Printf("Error during file config import: %v", e)
 		os.Exit(1)
 	}
 
@@ -101,7 +102,7 @@ func Test(t *testing.T) {
 	apprestintentcancel.Handler(w, req)
 
 	res := w.Result()
-	resBody, e := ioutil.ReadAll(res.Body)
+	resBody, e := io.ReadAll(res.Body)
 	if e != nil {
 		t.Errorf(errorRestCreateIntent, e)
 	}

@@ -3,12 +3,12 @@ package apppaymentintentcreate
 import (
 	"errors"
 
-	appamount "github.com/lelledaniele/upaygo/amount"
-	appconfig "github.com/lelledaniele/upaygo/config"
-	appcustomer "github.com/lelledaniele/upaygo/customer"
-	apperror "github.com/lelledaniele/upaygo/error"
-	apppaymentintent "github.com/lelledaniele/upaygo/payment/intent"
-	apppaymentsource "github.com/lelledaniele/upaygo/payment/source"
+	appamount "github.com/lelledev/upaygo/amount"
+	appconfig "github.com/lelledev/upaygo/config"
+	appcustomer "github.com/lelledev/upaygo/customer"
+	apperror "github.com/lelledev/upaygo/error"
+	apppaymentintent "github.com/lelledev/upaygo/payment/intent"
+	apppaymentsource "github.com/lelledev/upaygo/payment/source"
 
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/paymentintent"

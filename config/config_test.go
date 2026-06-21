@@ -1,3 +1,4 @@
+//go:build unit
 // +build unit
 
 package appconfig_test
@@ -6,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
+	appconfig "github.com/lelledev/upaygo/config"
 )
 
 const (

@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apppaymentintentcreate_test
@@ -8,12 +9,12 @@ import (
 	"os"
 	"testing"
 
-	appamount "github.com/lelledaniele/upaygo/amount"
-	appconfig "github.com/lelledaniele/upaygo/config"
-	appcurrency "github.com/lelledaniele/upaygo/currency"
-	appcustomer "github.com/lelledaniele/upaygo/customer"
-	apppaymentintentcreate "github.com/lelledaniele/upaygo/payment/intent/create"
-	apppaymentsource "github.com/lelledaniele/upaygo/payment/source"
+	appamount "github.com/lelledev/upaygo/amount"
+	appconfig "github.com/lelledev/upaygo/config"
+	appcurrency "github.com/lelledev/upaygo/currency"
+	appcustomer "github.com/lelledev/upaygo/customer"
+	apppaymentintentcreate "github.com/lelledev/upaygo/payment/intent/create"
+	apppaymentsource "github.com/lelledev/upaygo/payment/source"
 
 	"github.com/stripe/stripe-go/customer"
 	"github.com/stripe/stripe-go/paymentintent"
@@ -35,11 +36,10 @@ func TestMain(m *testing.M) {
 		fmt.Printf("Impossible to get configuration file: %v\n", e)
 		os.Exit(1)
 	}
-	defer fc.Close()
-
 	e = appconfig.ImportConfig(fc)
+	_ = fc.Close()
 	if e != nil {
-		fmt.Printf("Error durring file config import: %v", e)
+		fmt.Printf("Error during file config import: %v", e)
 		os.Exit(1)
 	}
 

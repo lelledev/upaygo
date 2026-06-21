@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/http"
 
-	appcurrency "github.com/lelledaniele/upaygo/currency"
-	apperror "github.com/lelledaniele/upaygo/error"
-	apppaymentintentget "github.com/lelledaniele/upaygo/payment/intent/get"
+	appcurrency "github.com/lelledev/upaygo/currency"
+	apperror "github.com/lelledev/upaygo/error"
+	apppaymentintentget "github.com/lelledev/upaygo/payment/intent/get"
 
 	"github.com/gorilla/mux"
 )
@@ -81,7 +81,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 // Get and transform the payload params into domain structs
 func getParams(r *http.Request) (string, appcurrency.Currency, error) {
 	vars := mux.Vars(r)
-	ID, _ := vars["id"]
+	ID := vars["id"]
 
 	cursym := r.URL.Query().Get("currency")
 	if cursym == "" {

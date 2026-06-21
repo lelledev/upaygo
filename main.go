@@ -6,18 +6,20 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
-	apprestintentcancel "github.com/lelledaniele/upaygo/controller/rest/intent/cancel"
-	apprestintentcapture "github.com/lelledaniele/upaygo/controller/rest/intent/capture"
-	apprestintentconfirm "github.com/lelledaniele/upaygo/controller/rest/intent/confirm"
-	apprestintentcreate "github.com/lelledaniele/upaygo/controller/rest/intent/create"
-	apprestintentget "github.com/lelledaniele/upaygo/controller/rest/intent/get"
+	appconfig "github.com/lelledev/upaygo/config"
+	apprestintentcancel "github.com/lelledev/upaygo/controller/rest/intent/cancel"
+	apprestintentcapture "github.com/lelledev/upaygo/controller/rest/intent/capture"
+	apprestintentconfirm "github.com/lelledev/upaygo/controller/rest/intent/confirm"
+	apprestintentcreate "github.com/lelledev/upaygo/controller/rest/intent/create"
+	apprestintentget "github.com/lelledev/upaygo/controller/rest/intent/get"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/gorilla/mux"
-	_ "github.com/lelledaniele/upaygo/docs"
+
+	_ "github.com/lelledev/upaygo/docs"
 )
 
 var configFile string
@@ -36,15 +38,22 @@ func init() {
 // @description Microservice to manage payment
 // @license.name MIT
 func main() {
-	fc, e := os.Open(configFile)
-	if e != nil {
-		log.Fatal(fmt.Sprintf("Impossible to open configuration file: %v\n", e))
+	if err := run(); err != nil {
+		log.Fatal(err)
 	}
-	defer fc.Close()
+}
 
-	e = appconfig.ImportConfig(fc)
+func run() error {
+	fc, e := os.Open(configFile) //nolint:gosec // configFile is an operator-supplied CLI flag, not user input
 	if e != nil {
-		log.Fatal(fmt.Sprintf("Error durring file config import: %v\n", e))
+		return fmt.Errorf("impossible to open configuration file: %w", e)
+	}
+	defer func() {
+		_ = fc.Close()
+	}()
+
+	if e = appconfig.ImportConfig(fc); e != nil {
+		return fmt.Errorf("error during file config import: %w", e)
 	}
 
 	s := appconfig.GetServerConfig()
@@ -57,5 +66,11 @@ func main() {
 	r.HandleFunc(apprestintentcapture.URL, apprestintentcapture.Handler).Methods(apprestintentcapture.Method)
 	r.HandleFunc(apprestintentcancel.URL, apprestintentcancel.Handler).Methods(apprestintentcancel.Method)
 
-	log.Fatal(http.ListenAndServe(":"+s.GetPort(), r))
+	srv := &http.Server{
+		Addr:              ":" + s.GetPort(),
+		Handler:           r,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+
+	return srv.ListenAndServe()
 }
