@@ -6,13 +6,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v6
         with:
           go-version: 1.26
         id: go
 
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v7
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v7
+        with:
+          persist-credentials: false
 
       - name: Swagger - Installation
         run: go install github.com/swaggo/swag/cmd/swag@latest
