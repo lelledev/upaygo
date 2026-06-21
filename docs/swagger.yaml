@@ -1,0 +1,214 @@
+definitions:
+  apperror.RESTError:
+    properties:
+      error:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Microservice to manage payment
+  license:
+    name: MIT
+  title: uPayment in GO
+  version: 1.0.0
+paths:
+  /payment_intents:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Create an unconfirmed and manual intent
+      parameters:
+      - description: Intent's currency
+        in: formData
+        name: currency
+        required: true
+        type: string
+      - description: Intent's amount
+        in: formData
+        name: amount
+        required: true
+        type: integer
+      - description: Intent's payment source
+        in: formData
+        name: payment_source
+        required: true
+        type: string
+      - description: Intent's customer reference
+        in: formData
+        name: customer_reference
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: interface
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+      summary: Create an intent
+      tags:
+      - Intent
+  /payment_intents/{id}:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Get an existing intent
+      parameters:
+      - description: Intent's ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Intent's currency
+        in: formData
+        name: currency
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: interface
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+      summary: Get an intent
+      tags:
+      - Intent
+  /payment_intents/{id}/cancel:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Cancel an confirmed intent
+      parameters:
+      - description: Intent's ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Intent's currency
+        in: formData
+        name: currency
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: interface
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+      summary: Cancel an intent
+      tags:
+      - Intent
+  /payment_intents/{id}/capture:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Capture an confirmed intent
+      parameters:
+      - description: Intent's ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Intent's currency
+        in: formData
+        name: currency
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: interface
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+      summary: Capture an intent
+      tags:
+      - Intent
+  /payment_intents/{id}/confirm:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Confirm an unconfirmed intent
+      parameters:
+      - description: Intent's ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Intent's currency
+        in: formData
+        name: currency
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: interface
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/apperror.RESTError'
+      summary: Confirm an intent
+      tags:
+      - Intent
+swagger: "2.0"
