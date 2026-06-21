@@ -18,7 +18,7 @@ jobs:
         run: go install github.com/swaggo/swag/cmd/swag@latest
 
       - name: Swagger - Init
-        run: swag init
+        run: ~/go/bin/swag init
 
       - name: Get dependencies
         run: |

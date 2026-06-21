@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -17,6 +16,7 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/gorilla/mux"
+	_ "github.com/lelledev/upaygo/docs"
 )
 
 var configFile string
@@ -37,13 +37,15 @@ func init() {
 func main() {
 	fc, e := os.Open(configFile)
 	if e != nil {
-		log.Fatal(fmt.Sprintf("Impossible to open configuration file: %v\n", e))
+		log.Fatalf("impossible to open configuration file: %v", e)
 	}
-	defer fc.Close()
+	defer func() {
+		_ = fc.Close()
+	}()
 
 	e = appconfig.ImportConfig(fc)
 	if e != nil {
-		log.Fatal(fmt.Sprintf("Error durring file config import: %v\n", e))
+		log.Fatalf("error durring file config import: %v", e)
 	}
 
 	s := appconfig.GetServerConfig()
