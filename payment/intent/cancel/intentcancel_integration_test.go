@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apppaymentintentcancel_test
@@ -8,9 +9,9 @@ import (
 	"os"
 	"testing"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
-	appcurrency "github.com/lelledaniele/upaygo/currency"
-	apppaymentintentcancel "github.com/lelledaniele/upaygo/payment/intent/cancel"
+	appconfig "github.com/lelledev/upaygo/config"
+	appcurrency "github.com/lelledev/upaygo/currency"
+	apppaymentintentcancel "github.com/lelledev/upaygo/payment/intent/cancel"
 
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/paymentintent"

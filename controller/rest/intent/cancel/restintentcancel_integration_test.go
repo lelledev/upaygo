@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apprestintentcancel_test
@@ -13,9 +14,9 @@ import (
 	"strings"
 	"testing"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
-	apprestintentcancel "github.com/lelledaniele/upaygo/controller/rest/intent/cancel"
-	appcurrency "github.com/lelledaniele/upaygo/currency"
+	appconfig "github.com/lelledev/upaygo/config"
+	apprestintentcancel "github.com/lelledev/upaygo/controller/rest/intent/cancel"
+	appcurrency "github.com/lelledev/upaygo/currency"
 
 	"github.com/gorilla/mux"
 	"github.com/stripe/stripe-go"

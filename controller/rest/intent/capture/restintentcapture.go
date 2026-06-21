@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/http"
 
-	appcurrency "github.com/lelledaniele/upaygo/currency"
-	apperror "github.com/lelledaniele/upaygo/error"
-	apppaymentintentcapture "github.com/lelledaniele/upaygo/payment/intent/capture"
+	appcurrency "github.com/lelledev/upaygo/currency"
+	apperror "github.com/lelledev/upaygo/error"
+	apppaymentintentcapture "github.com/lelledev/upaygo/payment/intent/capture"
 
 	"github.com/gorilla/mux"
 )

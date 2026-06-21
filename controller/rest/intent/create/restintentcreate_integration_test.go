@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apprestintentcreate_test
@@ -15,10 +16,10 @@ import (
 
 	"github.com/stripe/stripe-go/customer"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
-	apprestintentcreate "github.com/lelledaniele/upaygo/controller/rest/intent/create"
-	appcurrency "github.com/lelledaniele/upaygo/currency"
-	appcustomer "github.com/lelledaniele/upaygo/customer"
+	appconfig "github.com/lelledev/upaygo/config"
+	apprestintentcreate "github.com/lelledev/upaygo/controller/rest/intent/create"
+	appcurrency "github.com/lelledev/upaygo/currency"
+	appcustomer "github.com/lelledev/upaygo/customer"
 )
 
 const (

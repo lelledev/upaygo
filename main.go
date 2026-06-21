@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"os"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
-	apprestintentcancel "github.com/lelledaniele/upaygo/controller/rest/intent/cancel"
-	apprestintentcapture "github.com/lelledaniele/upaygo/controller/rest/intent/capture"
-	apprestintentconfirm "github.com/lelledaniele/upaygo/controller/rest/intent/confirm"
-	apprestintentcreate "github.com/lelledaniele/upaygo/controller/rest/intent/create"
-	apprestintentget "github.com/lelledaniele/upaygo/controller/rest/intent/get"
+	appconfig "github.com/lelledev/upaygo/config"
+	apprestintentcancel "github.com/lelledev/upaygo/controller/rest/intent/cancel"
+	apprestintentcapture "github.com/lelledev/upaygo/controller/rest/intent/capture"
+	apprestintentconfirm "github.com/lelledev/upaygo/controller/rest/intent/confirm"
+	apprestintentcreate "github.com/lelledev/upaygo/controller/rest/intent/create"
+	apprestintentget "github.com/lelledev/upaygo/controller/rest/intent/get"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 

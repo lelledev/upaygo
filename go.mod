@@ -1,4 +1,4 @@
-module github.com/lelledaniele/upaygo
+module github.com/lelledev/upaygo
 
 go 1.26
 

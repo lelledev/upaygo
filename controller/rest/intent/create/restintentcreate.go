@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"strconv"
 
-	appamount "github.com/lelledaniele/upaygo/amount"
-	appcustomer "github.com/lelledaniele/upaygo/customer"
-	apperror "github.com/lelledaniele/upaygo/error"
-	appintentcreate "github.com/lelledaniele/upaygo/payment/intent/create"
-	appsource "github.com/lelledaniele/upaygo/payment/source"
+	appamount "github.com/lelledev/upaygo/amount"
+	appcustomer "github.com/lelledev/upaygo/customer"
+	apperror "github.com/lelledev/upaygo/error"
+	appintentcreate "github.com/lelledev/upaygo/payment/intent/create"
+	appsource "github.com/lelledev/upaygo/payment/source"
 )
 
 const (

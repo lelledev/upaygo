@@ -1,3 +1,4 @@
+//go:build unit
 // +build unit
 
 package appcurrency_test
@@ -6,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	appcurrency "github.com/lelledaniele/upaygo/currency"
+	appcurrency "github.com/lelledev/upaygo/currency"
 )
 
 func TestNew(t *testing.T) {

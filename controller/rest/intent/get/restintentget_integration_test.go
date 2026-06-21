@@ -1,3 +1,4 @@
+//go:build stripe
 // +build stripe
 
 package apprestintentget_test
@@ -12,10 +13,10 @@ import (
 	"os"
 	"testing"
 
-	apprestintentget "github.com/lelledaniele/upaygo/controller/rest/intent/get"
+	apprestintentget "github.com/lelledev/upaygo/controller/rest/intent/get"
 
-	appconfig "github.com/lelledaniele/upaygo/config"
-	appcurrency "github.com/lelledaniele/upaygo/currency"
+	appconfig "github.com/lelledev/upaygo/config"
+	appcurrency "github.com/lelledev/upaygo/currency"
 
 	"github.com/gorilla/mux"
 	"github.com/stripe/stripe-go"
