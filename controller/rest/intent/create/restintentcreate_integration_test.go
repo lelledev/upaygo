@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -51,11 +51,10 @@ func TestMain(m *testing.M) {
 		fmt.Printf("Impossible to get configuration file: %v\n", e)
 		os.Exit(1)
 	}
-	defer fc.Close()
-
 	e = appconfig.ImportConfig(fc)
+	_ = fc.Close()
 	if e != nil {
-		fmt.Printf("Error durring file config import: %v", e)
+		fmt.Printf("Error during file config import: %v", e)
 		os.Exit(1)
 	}
 
@@ -80,7 +79,7 @@ func Test(t *testing.T) {
 	apprestintentcreate.Handler(w, req)
 
 	res := w.Result()
-	resBody, e := ioutil.ReadAll(res.Body)
+	resBody, e := io.ReadAll(res.Body)
 	if e != nil {
 		t.Errorf(errorRestCreateIntent, e)
 	}
@@ -115,7 +114,7 @@ func TestWithoutCustomer(t *testing.T) {
 	apprestintentcreate.Handler(w, req)
 
 	res := w.Result()
-	resBody, e := ioutil.ReadAll(res.Body)
+	resBody, e := io.ReadAll(res.Body)
 	_ = res.Body.Close()
 	if e != nil {
 		t.Errorf(errorRestCreateIntent, e)

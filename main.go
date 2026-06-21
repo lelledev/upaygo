@@ -2,9 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	appconfig "github.com/lelledev/upaygo/config"
 	apprestintentcancel "github.com/lelledev/upaygo/controller/rest/intent/cancel"
@@ -16,6 +18,7 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/gorilla/mux"
+
 	_ "github.com/lelledev/upaygo/docs"
 )
 
@@ -35,17 +38,22 @@ func init() {
 // @description Microservice to manage payment
 // @license.name MIT
 func main() {
-	fc, e := os.Open(configFile)
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run() error {
+	fc, e := os.Open(configFile) //nolint:gosec // configFile is an operator-supplied CLI flag, not user input
 	if e != nil {
-		log.Fatalf("impossible to open configuration file: %v", e)
+		return fmt.Errorf("impossible to open configuration file: %w", e)
 	}
 	defer func() {
 		_ = fc.Close()
 	}()
 
-	e = appconfig.ImportConfig(fc)
-	if e != nil {
-		log.Fatalf("error durring file config import: %v", e)
+	if e = appconfig.ImportConfig(fc); e != nil {
+		return fmt.Errorf("error during file config import: %w", e)
 	}
 
 	s := appconfig.GetServerConfig()
@@ -58,5 +66,11 @@ func main() {
 	r.HandleFunc(apprestintentcapture.URL, apprestintentcapture.Handler).Methods(apprestintentcapture.Method)
 	r.HandleFunc(apprestintentcancel.URL, apprestintentcancel.Handler).Methods(apprestintentcancel.Method)
 
-	log.Fatal(http.ListenAndServe(":"+s.GetPort(), r))
+	srv := &http.Server{
+		Addr:              ":" + s.GetPort(),
+		Handler:           r,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+
+	return srv.ListenAndServe()
 }

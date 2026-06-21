@@ -26,10 +26,10 @@ func (a *c) Equal(b Currency) bool {
 }
 
 // New returns a new instance of c
-func New(ISO4217 string) (Currency, error) {
-	if len(ISO4217) != 3 {
-		return nil, fmt.Errorf("'%v' is not a currency ISO 4217 format", ISO4217)
+func New(iso4217 string) (Currency, error) {
+	if len(iso4217) != 3 {
+		return nil, fmt.Errorf("'%v' is not a currency ISO 4217 format", iso4217)
 	}
 
-	return &c{ISO4217: strings.ToUpper(ISO4217)}, nil
+	return &c{ISO4217: strings.ToUpper(iso4217)}, nil
 }
