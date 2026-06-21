@@ -15,10 +15,10 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Swagger - Installation
-        run: go get -u github.com/swaggo/swag/cmd/swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
 
       - name: Swagger - Init
-        run: ~/go/bin/swag init
+        run: swag init
 
       - name: Get dependencies
         run: |
@@ -33,11 +33,11 @@ jobs:
           cp config.json.dist config.json
           sed -i 's/pk_xxx/${{ secrets.STRIPE_PK }}/g; s/sk_xxx/${{ secrets.STRIPE_SK }}/g' config.json
 
+      - name: Build
+        run: go build -v .
+
       - name: Tests - Unit
         run: go test ./... -failfast -tags=unit
 
       - name: Tests - Stripe
         run: go test ./... -failfast -tags=stripe -config=/home/runner/work/upaygo/upaygo/config.json
-
-      - name: Build
-        run: go build -v .
