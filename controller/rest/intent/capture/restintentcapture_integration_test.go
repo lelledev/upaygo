@@ -20,8 +20,8 @@ import (
 	appcurrency "github.com/lelledev/upaygo/currency"
 
 	"github.com/gorilla/mux"
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v82"
+	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 const (
@@ -67,13 +67,16 @@ func createTestIntent() (string, error) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(1179)
 	pip := &stripe.PaymentIntentParams{
-		Amount:             stripe.Int64(am),
-		Currency:           stripe.String(cur.GetISO4217()),
-		PaymentMethod:      stripe.String("pm_card_visa"),
-		SetupFutureUsage:   stripe.String("off_session"),
-		ConfirmationMethod: stripe.String("automatic"),
-		Confirm:            stripe.Bool(true),
-		CaptureMethod:      stripe.String("manual"),
+		Amount:             new(am),
+		Currency:           new(cur.GetISO4217()),
+		PaymentMethod:      new("pm_card_visa"),
+		SetupFutureUsage:   new("off_session"),
+		ConfirmationMethod: new("automatic"),
+		Confirm:            new(true),
+		CaptureMethod:      new("manual"),
+		// payment_method_types is compatible with confirmation_method;
+		// automatic_payment_methods is not (Stripe rejects both together).
+		PaymentMethodTypes: []*string{new("card")},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())

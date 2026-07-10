@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stripe/stripe-go/customer"
+	"github.com/stripe/stripe-go/v82/customer"
 
 	appcurrency "github.com/lelledev/upaygo/currency"
 

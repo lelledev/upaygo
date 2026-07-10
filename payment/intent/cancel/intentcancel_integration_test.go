@@ -13,8 +13,8 @@ import (
 	appcurrency "github.com/lelledev/upaygo/currency"
 	apppaymentintentcancel "github.com/lelledev/upaygo/payment/intent/cancel"
 
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v82"
+	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 func TestMain(m *testing.M) {
@@ -47,12 +47,15 @@ func TestCancel(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
 	pip := &stripe.PaymentIntentParams{
-		Amount:             stripe.Int64(am),
-		Currency:           stripe.String(cur.GetISO4217()),
-		ConfirmationMethod: stripe.String("automatic"),
-		Confirm:            stripe.Bool(true),
-		CaptureMethod:      stripe.String("manual"),
-		PaymentMethod:      stripe.String("pm_card_visa"),
+		Amount:             new(am),
+		Currency:           new(cur.GetISO4217()),
+		ConfirmationMethod: new("automatic"),
+		Confirm:            new(true),
+		CaptureMethod:      new("manual"),
+		PaymentMethod:      new("pm_card_visa"),
+		// payment_method_types is compatible with confirmation_method;
+		// automatic_payment_methods is not (Stripe rejects both together).
+		PaymentMethodTypes: []*string{new("card")},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
@@ -77,12 +80,15 @@ func TestCancelWithSCACard(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
 	pip := &stripe.PaymentIntentParams{
-		Amount:             stripe.Int64(am),
-		Currency:           stripe.String(cur.GetISO4217()),
-		ConfirmationMethod: stripe.String("automatic"),
-		Confirm:            stripe.Bool(true),
-		CaptureMethod:      stripe.String("manual"),
-		PaymentMethod:      stripe.String("pm_card_authenticationRequiredOnSetup"),
+		Amount:             new(am),
+		Currency:           new(cur.GetISO4217()),
+		ConfirmationMethod: new("automatic"),
+		Confirm:            new(true),
+		CaptureMethod:      new("manual"),
+		PaymentMethod:      new("pm_card_authenticationRequiredOnSetup"),
+		// payment_method_types is compatible with confirmation_method;
+		// automatic_payment_methods is not (Stripe rejects both together).
+		PaymentMethodTypes: []*string{new("card")},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
@@ -107,12 +113,15 @@ func TestCancelNonConfirmedIntent(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
 	pip := &stripe.PaymentIntentParams{
-		Amount:             stripe.Int64(am),
-		Currency:           stripe.String(cur.GetISO4217()),
-		ConfirmationMethod: stripe.String("manual"),
-		Confirm:            stripe.Bool(false),
-		CaptureMethod:      stripe.String("manual"),
-		PaymentMethod:      stripe.String("pm_card_authenticationRequiredOnSetup"),
+		Amount:             new(am),
+		Currency:           new(cur.GetISO4217()),
+		ConfirmationMethod: new("manual"),
+		Confirm:            new(false),
+		CaptureMethod:      new("manual"),
+		PaymentMethod:      new("pm_card_authenticationRequiredOnSetup"),
+		// payment_method_types is compatible with confirmation_method;
+		// automatic_payment_methods is not (Stripe rejects both together).
+		PaymentMethodTypes: []*string{new("card")},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())

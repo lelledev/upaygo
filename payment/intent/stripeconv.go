@@ -7,7 +7,7 @@ import (
 	appcustomer "github.com/lelledev/upaygo/customer"
 	apppaymentsource "github.com/lelledev/upaygo/payment/source"
 
-	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/v82"
 )
 
 func FromStripeToAppIntent(intent stripe.PaymentIntent) Intent {
@@ -22,7 +22,7 @@ func FromStripeToAppIntent(intent stripe.PaymentIntent) Intent {
 		ps = apppaymentsource.New(intent.PaymentMethod.ID)
 	}
 
-	a, _ := appamount.New(int(intent.Amount), intent.Currency)
+	a, _ := appamount.New(int(intent.Amount), string(intent.Currency))
 
 	var cus appcustomer.Customer
 	if intent.Customer != nil {

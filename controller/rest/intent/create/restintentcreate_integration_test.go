@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stripe/stripe-go/customer"
+	"github.com/stripe/stripe-go/v82/customer"
 
 	appconfig "github.com/lelledev/upaygo/config"
 	apprestintentcreate "github.com/lelledev/upaygo/controller/rest/intent/create"

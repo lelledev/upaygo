@@ -1,5 +1,5 @@
 ![Go Tests](https://github.com/lelledev/upaygo/workflows/Go/badge.svg)
-![Code scanning - action](https://github.com/lelledev/upaygo/workflows/Code%20scanning%20-%20action/badge.svg)
+![CodeQL Advanced](https://github.com/lelledev/upaygo/workflows/CodeQL%20Advanced/badge.svg)
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/bf7491736c431cd822f6)
 
@@ -35,12 +35,16 @@ vi config.json # Add your config values
 # API doc
 swag init
 
-# If you want to contribute
-cp .github/hooks/pre-commit .git/hooks/pre-commit
-# Open and change absolute config path
+# Enable pre-commit hooks (Git 2.54+ config-based hooks; no copy into .git/hooks)
+git config --local include.path ../.github/hooks/gitconfig
+# Verify registration (list only; does not execute hooks):
+git hook list --show-scope pre-commit
+# Run the configured pre-commit commands to confirm they work:
+git hook run pre-commit
 
 go run main.go -config=config.json
 ```
+
 
 ## How to use
 

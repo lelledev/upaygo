@@ -13,8 +13,8 @@ import (
 	appcurrency "github.com/lelledev/upaygo/currency"
 	apppaymentintentget "github.com/lelledev/upaygo/payment/intent/get"
 
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v82"
+	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 func TestMain(m *testing.M) {
@@ -47,8 +47,10 @@ func TestGet(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
 	pip := &stripe.PaymentIntentParams{
-		Amount:   stripe.Int64(am),
-		Currency: stripe.String(cur.GetISO4217()),
+		Amount:   new(am),
+		Currency: new(cur.GetISO4217()),
+		// Restrict to card so Dashboard redirect methods are not enabled.
+		PaymentMethodTypes: []*string{new("card")},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
