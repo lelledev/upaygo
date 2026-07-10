@@ -49,10 +49,8 @@ func TestGet(t *testing.T) {
 	pip := &stripe.PaymentIntentParams{
 		Amount:   new(am),
 		Currency: new(cur.GetISO4217()),
-		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
-			Enabled:        new(true),
-			AllowRedirects: new(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
-		},
+		// Restrict to card so Dashboard redirect methods are not enabled.
+		PaymentMethodTypes: []*string{new("card")},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())

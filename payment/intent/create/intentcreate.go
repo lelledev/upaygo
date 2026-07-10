@@ -34,13 +34,10 @@ func Create(a appamount.Amount, p apppaymentsource.Source, c appcustomer.Custome
 		SetupFutureUsage:   new("off_session"),
 		ConfirmationMethod: new("manual"),
 		CaptureMethod:      new("manual"),
-		// Newer Stripe API versions enable Dashboard payment methods by default,
-		// some of which redirect. This API uses manual confirmation without a
-		// return_url, so disallow redirect-based methods.
-		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
-			Enabled:        new(true),
-			AllowRedirects: new(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
-		},
+		// Explicit types avoid Dashboard redirect methods (no return_url on this
+		// API). payment_method_types is compatible with confirmation_method;
+		// automatic_payment_methods is not (Stripe rejects both together).
+		PaymentMethodTypes: []*string{new("card")},
 	}
 
 	if c != nil {

@@ -73,10 +73,9 @@ func createTestIntent() (string, error) {
 		SetupFutureUsage:   new("off_session"),
 		ConfirmationMethod: new("manual"),
 		CaptureMethod:      new("manual"),
-		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
-			Enabled:        new(true),
-			AllowRedirects: new(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
-		},
+		// payment_method_types is compatible with confirmation_method;
+		// automatic_payment_methods is not (Stripe rejects both together).
+		PaymentMethodTypes: []*string{new("card")},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())

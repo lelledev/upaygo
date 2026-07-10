@@ -51,10 +51,9 @@ func TestConfirm(t *testing.T) {
 		Currency:           new(cur.GetISO4217()),
 		ConfirmationMethod: new("manual"),
 		PaymentMethod:      new("pm_card_visa"),
-		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
-			Enabled:        new(true),
-			AllowRedirects: new(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
-		},
+		// payment_method_types is compatible with confirmation_method;
+		// automatic_payment_methods is not (Stripe rejects both together).
+		PaymentMethodTypes: []*string{new("card")},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
