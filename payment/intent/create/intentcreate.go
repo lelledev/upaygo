@@ -28,25 +28,25 @@ func Create(a appamount.Amount, p apppaymentsource.Source, c appcustomer.Custome
 	stripe.Key = sck.GetSK()
 
 	ic := &stripe.PaymentIntentParams{
-		Amount:             stripe.Int64(int64(a.GetAmount())),
-		Currency:           stripe.String(a.GetCurrency().GetISO4217()),
-		PaymentMethod:      stripe.String(p.GetGatewayReference()),
-		SetupFutureUsage:   stripe.String("off_session"),
-		ConfirmationMethod: stripe.String("manual"),
-		CaptureMethod:      stripe.String("manual"),
+		Amount:             new(int64(a.GetAmount())),
+		Currency:           new(a.GetCurrency().GetISO4217()),
+		PaymentMethod:      new(p.GetGatewayReference()),
+		SetupFutureUsage:   new("off_session"),
+		ConfirmationMethod: new("manual"),
+		CaptureMethod:      new("manual"),
 		// Newer Stripe API versions enable Dashboard payment methods by default,
 		// some of which redirect. This API uses manual confirmation without a
 		// return_url, so disallow redirect-based methods.
 		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
-			Enabled:        stripe.Bool(true),
-			AllowRedirects: stripe.String(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
+			Enabled:        new(true),
+			AllowRedirects: new(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
 		},
 	}
 
 	if c != nil {
 		// With SetupFutureUsage set, Stripe attaches the payment method to the
 		// customer after confirmation (SavePaymentMethod was removed in stripe-go v72+).
-		ic.Customer = stripe.String(c.GetGatewayReference())
+		ic.Customer = new(c.GetGatewayReference())
 	}
 
 	intent, e := paymentintent.New(ic)

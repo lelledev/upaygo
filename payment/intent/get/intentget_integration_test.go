@@ -47,8 +47,12 @@ func TestGet(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
 	pip := &stripe.PaymentIntentParams{
-		Amount:   stripe.Int64(am),
-		Currency: stripe.String(cur.GetISO4217()),
+		Amount:   new(am),
+		Currency: new(cur.GetISO4217()),
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled:        new(true),
+			AllowRedirects: new(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
+		},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())

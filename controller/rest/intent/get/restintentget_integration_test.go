@@ -67,13 +67,17 @@ func createTestIntent() (string, error) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(4567)
 	pip := &stripe.PaymentIntentParams{
-		Amount:             stripe.Int64(am),
-		Currency:           stripe.String(cur.GetISO4217()),
-		PaymentMethod:      stripe.String("pm_card_visa"),
-		SetupFutureUsage:   stripe.String("off_session"),
-		ConfirmationMethod: stripe.String("automatic"),
-		Confirm:            stripe.Bool(true),
-		CaptureMethod:      stripe.String("manual"),
+		Amount:             new(am),
+		Currency:           new(cur.GetISO4217()),
+		PaymentMethod:      new("pm_card_visa"),
+		SetupFutureUsage:   new("off_session"),
+		ConfirmationMethod: new("automatic"),
+		Confirm:            new(true),
+		CaptureMethod:      new("manual"),
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled:        new(true),
+			AllowRedirects: new(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
+		},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())

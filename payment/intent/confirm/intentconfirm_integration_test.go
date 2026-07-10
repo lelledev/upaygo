@@ -47,10 +47,14 @@ func TestConfirm(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
 	pip := &stripe.PaymentIntentParams{
-		Amount:             stripe.Int64(am),
-		Currency:           stripe.String(cur.GetISO4217()),
-		ConfirmationMethod: stripe.String("manual"),
-		PaymentMethod:      stripe.String("pm_card_visa"),
+		Amount:             new(am),
+		Currency:           new(cur.GetISO4217()),
+		ConfirmationMethod: new("manual"),
+		PaymentMethod:      new("pm_card_visa"),
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled:        new(true),
+			AllowRedirects: new(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
+		},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())

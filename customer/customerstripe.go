@@ -26,7 +26,7 @@ func NewStripe(email string, ac appcurrency.Currency) (Customer, error) {
 	stripe.Key = sck.GetSK()
 
 	params := &stripe.CustomerParams{
-		Email: stripe.String(email),
+		Email: new(email),
 	}
 	cus, e := customer.New(params)
 	if e != nil {

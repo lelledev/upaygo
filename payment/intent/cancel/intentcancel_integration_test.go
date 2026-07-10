@@ -47,12 +47,16 @@ func TestCancel(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
 	pip := &stripe.PaymentIntentParams{
-		Amount:             stripe.Int64(am),
-		Currency:           stripe.String(cur.GetISO4217()),
-		ConfirmationMethod: stripe.String("automatic"),
-		Confirm:            stripe.Bool(true),
-		CaptureMethod:      stripe.String("manual"),
-		PaymentMethod:      stripe.String("pm_card_visa"),
+		Amount:             new(am),
+		Currency:           new(cur.GetISO4217()),
+		ConfirmationMethod: new("automatic"),
+		Confirm:            new(true),
+		CaptureMethod:      new("manual"),
+		PaymentMethod:      new("pm_card_visa"),
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled:        new(true),
+			AllowRedirects: new(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
+		},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
@@ -77,12 +81,16 @@ func TestCancelWithSCACard(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
 	pip := &stripe.PaymentIntentParams{
-		Amount:             stripe.Int64(am),
-		Currency:           stripe.String(cur.GetISO4217()),
-		ConfirmationMethod: stripe.String("automatic"),
-		Confirm:            stripe.Bool(true),
-		CaptureMethod:      stripe.String("manual"),
-		PaymentMethod:      stripe.String("pm_card_authenticationRequiredOnSetup"),
+		Amount:             new(am),
+		Currency:           new(cur.GetISO4217()),
+		ConfirmationMethod: new("automatic"),
+		Confirm:            new(true),
+		CaptureMethod:      new("manual"),
+		PaymentMethod:      new("pm_card_authenticationRequiredOnSetup"),
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled:        new(true),
+			AllowRedirects: new(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
+		},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
@@ -107,12 +115,16 @@ func TestCancelNonConfirmedIntent(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
 	pip := &stripe.PaymentIntentParams{
-		Amount:             stripe.Int64(am),
-		Currency:           stripe.String(cur.GetISO4217()),
-		ConfirmationMethod: stripe.String("manual"),
-		Confirm:            stripe.Bool(false),
-		CaptureMethod:      stripe.String("manual"),
-		PaymentMethod:      stripe.String("pm_card_authenticationRequiredOnSetup"),
+		Amount:             new(am),
+		Currency:           new(cur.GetISO4217()),
+		ConfirmationMethod: new("manual"),
+		Confirm:            new(false),
+		CaptureMethod:      new("manual"),
+		PaymentMethod:      new("pm_card_authenticationRequiredOnSetup"),
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled:        new(true),
+			AllowRedirects: new(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
+		},
 	}
 
 	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
