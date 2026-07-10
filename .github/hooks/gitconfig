@@ -1,0 +1,28 @@
+# Git 2.54+ config-based hooks for upaygo.
+#
+# Enable once per clone (paths are relative to .git/):
+#   git config --local include.path ../.github/hooks/gitconfig
+#
+# Verify:
+#   git hook list --show-scope pre-commit
+#   git hook run pre-commit
+#
+# Docs: https://git-scm.com/docs/git-hook
+#
+# Note: unquoted ';' starts a comment in gitconfig — quote values that need it.
+
+[hook "gofmt"]
+	event = pre-commit
+	command = "bash -c 'files=$(gofmt -l . | grep -v \"^vendor/\" || true); test -z \"$files\" || { echo \"The following files need gofmt:\"; echo \"$files\"; exit 1; }'"
+
+[hook "golangci-lint"]
+	event = pre-commit
+	command = "bash -c 'command -v golangci-lint >/dev/null 2>&1 || exit 0; golangci-lint run ./...'"
+
+[hook "unit-tests"]
+	event = pre-commit
+	command = go test ./... -tags=unit -failfast
+
+[hook "stripe-tests"]
+	event = pre-commit
+	command = "bash -c 'ROOT=$(git rev-parse --show-toplevel); test -f \"$ROOT/config.json\" && ! grep -q sk_xxx \"$ROOT/config.json\" || exit 0; go test ./... -tags=stripe -failfast -config=\"$ROOT/config.json\"'"

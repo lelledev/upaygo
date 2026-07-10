@@ -35,12 +35,13 @@ vi config.json # Add your config values
 # API doc
 swag init
 
-# If you want to contribute
-cp .github/hooks/pre-commit .git/hooks/pre-commit
-# Open and change absolute config path
+# Enable pre-commit hooks (Git 2.54+ config-based hooks; no copy into .git/hooks)
+git config --local include.path ../.github/hooks/gitconfig
+# Verify: git hook list --show-scope pre-commit
 
 go run main.go -config=config.json
 ```
+
 
 ## How to use
 
