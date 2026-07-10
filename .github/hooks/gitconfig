@@ -4,8 +4,8 @@
 #   git config --local include.path ../.github/hooks/gitconfig
 #
 # Verify:
-#   git hook list --show-scope pre-commit
-#   git hook run pre-commit
+#   git hook list --show-scope pre-commit   # registration only; does not execute
+#   git hook run pre-commit                 # runs configured commands
 #
 # Docs: https://git-scm.com/docs/git-hook
 #

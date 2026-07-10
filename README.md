@@ -37,7 +37,10 @@ swag init
 
 # Enable pre-commit hooks (Git 2.54+ config-based hooks; no copy into .git/hooks)
 git config --local include.path ../.github/hooks/gitconfig
-# Verify: git hook list --show-scope pre-commit
+# Verify registration (list only; does not execute hooks):
+git hook list --show-scope pre-commit
+# Run the configured pre-commit commands to confirm they work:
+git hook run pre-commit
 
 go run main.go -config=config.json
 ```
