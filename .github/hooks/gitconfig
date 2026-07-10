@@ -11,6 +11,10 @@
 #
 # Note: unquoted ';' starts a comment in gitconfig — quote values that need it.
 
+[hook "swagger"]
+	event = pre-commit
+	command = "bash -c 'if command -v swag >/dev/null 2>&1; then swag init; else go run github.com/swaggo/swag/cmd/swag@latest init; fi'"
+
 [hook "gofmt"]
 	event = pre-commit
 	command = "bash -c 'files=$(gofmt -l . | grep -v \"^vendor/\" || true); test -z \"$files\" || { echo \"The following files need gofmt:\"; echo \"$files\"; exit 1; }'"
