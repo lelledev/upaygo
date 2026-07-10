@@ -13,8 +13,8 @@ import (
 	appcurrency "github.com/lelledev/upaygo/currency"
 	apppaymentintentconfirm "github.com/lelledev/upaygo/payment/intent/confirm"
 
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v82"
+	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 func TestMain(m *testing.M) {

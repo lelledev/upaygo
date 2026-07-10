@@ -8,7 +8,7 @@ import (
 
 	apppaymentintent "github.com/lelledev/upaygo/payment/intent"
 
-	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/v82"
 )
 
 func TestFromStripeToAppIntent(t *testing.T) {

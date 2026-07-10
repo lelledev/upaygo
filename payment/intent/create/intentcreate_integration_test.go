@@ -16,8 +16,8 @@ import (
 	apppaymentintentcreate "github.com/lelledev/upaygo/payment/intent/create"
 	apppaymentsource "github.com/lelledev/upaygo/payment/source"
 
-	"github.com/stripe/stripe-go/customer"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v82/customer"
+	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 func TestMain(m *testing.M) {

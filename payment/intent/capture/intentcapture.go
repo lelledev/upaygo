@@ -8,8 +8,8 @@ import (
 	apperror "github.com/lelledev/upaygo/error"
 	apppaymentintent "github.com/lelledev/upaygo/payment/intent"
 
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v82"
+	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 // Capture gets the intent id from c Stripe account and capture it

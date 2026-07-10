@@ -5,12 +5,12 @@ import (
 
 	apperror "github.com/lelledev/upaygo/error"
 
-	"github.com/stripe/stripe-go/customer"
+	"github.com/stripe/stripe-go/v82/customer"
 
 	appconfig "github.com/lelledev/upaygo/config"
 	appcurrency "github.com/lelledev/upaygo/currency"
 
-	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/v82"
 )
 
 func NewStripe(email string, ac appcurrency.Currency) (Customer, error) {

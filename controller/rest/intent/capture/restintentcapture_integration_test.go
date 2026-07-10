@@ -20,8 +20,8 @@ import (
 	appcurrency "github.com/lelledev/upaygo/currency"
 
 	"github.com/gorilla/mux"
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v82"
+	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 const (

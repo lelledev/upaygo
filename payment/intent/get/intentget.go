@@ -8,8 +8,8 @@ import (
 	apperror "github.com/lelledev/upaygo/error"
 	apppaymentintent "github.com/lelledev/upaygo/payment/intent"
 
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v82"
+	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 // Get gets the gf intent from c Stripe account and returns it as an instance of i

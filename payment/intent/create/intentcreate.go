@@ -10,8 +10,8 @@ import (
 	apppaymentintent "github.com/lelledev/upaygo/payment/intent"
 	apppaymentsource "github.com/lelledev/upaygo/payment/source"
 
-	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/paymentintent"
+	"github.com/stripe/stripe-go/v82"
+	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 // Create creates an intent in Stripe and returns it as an instance of Intent
@@ -37,8 +37,9 @@ func Create(a appamount.Amount, p apppaymentsource.Source, c appcustomer.Custome
 	}
 
 	if c != nil {
+		// With SetupFutureUsage set, Stripe attaches the payment method to the
+		// customer after confirmation (SavePaymentMethod was removed in stripe-go v72+).
 		ic.Customer = stripe.String(c.GetGatewayReference())
-		ic.SavePaymentMethod = stripe.Bool(true)
 	}
 
 	intent, e := paymentintent.New(ic)
