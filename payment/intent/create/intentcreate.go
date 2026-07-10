@@ -34,6 +34,13 @@ func Create(a appamount.Amount, p apppaymentsource.Source, c appcustomer.Custome
 		SetupFutureUsage:   stripe.String("off_session"),
 		ConfirmationMethod: stripe.String("manual"),
 		CaptureMethod:      stripe.String("manual"),
+		// Newer Stripe API versions enable Dashboard payment methods by default,
+		// some of which redirect. This API uses manual confirmation without a
+		// return_url, so disallow redirect-based methods.
+		AutomaticPaymentMethods: &stripe.PaymentIntentAutomaticPaymentMethodsParams{
+			Enabled:        stripe.Bool(true),
+			AllowRedirects: stripe.String(string(stripe.PaymentIntentAutomaticPaymentMethodsAllowRedirectsNever)),
+		},
 	}
 
 	if c != nil {
