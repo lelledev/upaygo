@@ -2,7 +2,6 @@ package apppaymentintentget
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	appconfig "github.com/lelledev/upaygo/config"
@@ -14,7 +13,7 @@ import (
 // Get gets the gf intent from c Stripe account and returns it as an instance of i
 func Get(gf string, c appcurrency.Currency) (apppaymentintent.Intent, error) {
 	if gf == "" || c == nil {
-		return nil, errors.New("impossible to get the payment intent without required parameters")
+		return nil, apperror.Invalid("impossible to get the payment intent without required parameters")
 	}
 
 	sc, e := appconfig.GetStripeClientByCurrency(c.GetISO4217())
@@ -24,12 +23,7 @@ func Get(gf string, c appcurrency.Currency) (apppaymentintent.Intent, error) {
 
 	intent, e := sc.V1PaymentIntents.Retrieve(context.Background(), gf, nil)
 	if e != nil {
-		m, es := apperror.GetStripeErrorMessage(e)
-		if es == nil {
-			return nil, errors.New(m)
-		}
-
-		return nil, e
+		return nil, fmt.Errorf("get payment intent %s: %w", gf, e)
 	}
 
 	return apppaymentintent.FromStripeToAppIntent(*intent), nil

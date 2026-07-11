@@ -2,7 +2,6 @@ package apprestintentcreate
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -20,12 +19,11 @@ const (
 
 	responseTye = "application/json"
 
-	errorParsingParam    = "error during the payload parsing: '%v'"
+	errorParsingParam    = "error during the payload parsing"
 	errorParamMissing    = "missing payload mandatory parameters to create a payment intent"
-	errorParamAmountType = "error during the amount conversion: '%v'"
-	errorAmountCreation  = "error during the intent amount creation: '%v'"
-	errorIntentCreation  = "error during the intent creation: '%v'"
-	errorIntentEncoding  = "error during the intent encoding: '%v'"
+	errorParamAmountType = "error during the amount conversion"
+	errorAmountCreation  = "error during the intent amount creation"
+	errorIntentEncoding  = "error during the intent encoding: %w"
 )
 
 // @Summary Create an intent
@@ -47,61 +45,40 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	amount, ps, cus, e := getParams(r)
 	if e != nil {
-		w.WriteHeader(http.StatusBadRequest)
-
-		e := apperror.RESTError{
-			M: e.Error(),
-		}
-		_ = json.NewEncoder(w).Encode(e)
-
+		apperror.WriteJSON(w, e)
 		return
 	}
 
 	appintent, e := appintentcreate.Create(amount, ps, cus)
 	if e != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		e := apperror.RESTError{
-			M: fmt.Sprintf(errorIntentCreation, e),
-		}
-		_ = json.NewEncoder(w).Encode(e)
-
+		apperror.WriteJSON(w, e)
 		return
 	}
 
-	e = json.NewEncoder(w).Encode(appintent)
-	if e != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		e := apperror.RESTError{
-			M: fmt.Sprintf(errorIntentEncoding, e),
-		}
-		_ = json.NewEncoder(w).Encode(e)
-
-		return
+	if e = json.NewEncoder(w).Encode(appintent); e != nil {
+		apperror.WriteJSON(w, fmt.Errorf(errorIntentEncoding, e))
 	}
 }
 
 // Get and transform the payload params into domain structs
 func getParams(r *http.Request) (appamount.Amount, appsource.Source, appcustomer.Customer, error) {
-	e := r.ParseForm()
-	if e != nil {
-		return nil, nil, nil, fmt.Errorf(errorParsingParam, e.Error())
+	if e := r.ParseForm(); e != nil {
+		return nil, nil, nil, apperror.InvalidCause(errorParsingParam, e)
 	}
 
 	p := r.Form
 	if p.Get("currency") == "" || p.Get("amount") == "" || p.Get("payment_source") == "" {
-		return nil, nil, nil, errors.New(errorParamMissing)
+		return nil, nil, nil, apperror.Invalid(errorParamMissing)
 	}
 
 	ai, e := strconv.Atoi(p.Get("amount"))
 	if e != nil {
-		return nil, nil, nil, fmt.Errorf(errorParamAmountType, e.Error())
+		return nil, nil, nil, apperror.InvalidCause(errorParamAmountType, e)
 	}
 
 	amount, e := appamount.New(ai, p.Get("currency"))
 	if e != nil {
-		return nil, nil, nil, fmt.Errorf(errorAmountCreation, e.Error())
+		return nil, nil, nil, apperror.InvalidCause(errorAmountCreation, e)
 	}
 
 	var cus appcustomer.Customer
