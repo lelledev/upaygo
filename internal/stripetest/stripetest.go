@@ -7,6 +7,7 @@ package appstripetest
 import (
 	"context"
 	"fmt"
+	"testing"
 
 	appconfig "github.com/lelledev/upaygo/config"
 
@@ -26,6 +27,18 @@ func NewIntent(c string, params *stripe.PaymentIntentCreateParams) (*stripe.Paym
 	}
 
 	return intent, nil
+}
+
+// CleanupIntentIfCreated registers a t.Cleanup that cancels the id payment
+// intent on the c currency Stripe account; it does nothing if id is empty
+func CleanupIntentIfCreated(t *testing.T, c string, id string) {
+	if id == "" {
+		return
+	}
+
+	t.Cleanup(func() {
+		CancelIntent(c, id)
+	})
 }
 
 // CancelIntent cancels the id payment intent on the c currency Stripe account,

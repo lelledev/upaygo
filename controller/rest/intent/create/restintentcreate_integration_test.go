@@ -92,11 +92,7 @@ func Test(t *testing.T) {
 		t.Errorf(errorRestCreateIntent, e)
 	}
 
-	if resI.IntentGatewayReference != "" {
-		t.Cleanup(func() {
-			appstripetest.CancelIntent(c.GetISO4217(), resI.IntentGatewayReference)
-		})
-	}
+	appstripetest.CleanupIntentIfCreated(t, c.GetISO4217(), resI.IntentGatewayReference)
 
 	if resI.IntentGatewayReference == "" {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the gateway reference")
@@ -131,11 +127,7 @@ func TestWithoutCustomer(t *testing.T) {
 		t.Errorf(errorRestCreateIntent, e)
 	}
 
-	if resI.IntentGatewayReference != "" {
-		t.Cleanup(func() {
-			appstripetest.CancelIntent(c, resI.IntentGatewayReference)
-		})
-	}
+	appstripetest.CleanupIntentIfCreated(t, c, resI.IntentGatewayReference)
 
 	if resI.IntentGatewayReference == "" {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the gateway reference")

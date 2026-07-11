@@ -92,9 +92,7 @@ func Test(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	t.Cleanup(func() {
-		appstripetest.CancelIntent("EUR", intentID)
-	})
+	appstripetest.CleanupIntentIfCreated(t, "EUR", intentID)
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "http://example.com", strings.NewReader("currency=EUR"))

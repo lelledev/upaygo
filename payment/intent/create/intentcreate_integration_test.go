@@ -62,9 +62,7 @@ func TestCreate(t *testing.T) {
 	if e != nil {
 		t.Fatalf("impossible to create a new payment intent: %v", e)
 	}
-	t.Cleanup(func() {
-		appstripetest.CancelIntent(cur.GetISO4217(), pi.GetGatewayReference())
-	})
+	appstripetest.CleanupIntentIfCreated(t, cur.GetISO4217(), pi.GetGatewayReference())
 
 	if pi.GetGatewayReference() == "" {
 		t.Error("intent new is incorrect, created an intent without gateway reference")
@@ -125,9 +123,7 @@ func TestCreateWithoutCustomer(t *testing.T) {
 	if e != nil {
 		t.Fatalf("impossible to create a new payment intent: %v", e)
 	}
-	t.Cleanup(func() {
-		appstripetest.CancelIntent(cur.GetISO4217(), pi.GetGatewayReference())
-	})
+	appstripetest.CleanupIntentIfCreated(t, cur.GetISO4217(), pi.GetGatewayReference())
 
 	if pi.GetCustomer() != nil {
 		t.Errorf("intent customer should be blank, got: %v", pi.GetCustomer())

@@ -62,9 +62,7 @@ func TestCapture(t *testing.T) {
 	if e != nil {
 		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
-	t.Cleanup(func() {
-		appstripetest.CancelIntent(cur.GetISO4217(), intent.ID)
-	})
+	appstripetest.CleanupIntentIfCreated(t, cur.GetISO4217(), intent.ID)
 
 	appintent, e := apppaymentintentcapture.Capture(intent.ID, cur)
 	if e != nil {
@@ -95,9 +93,7 @@ func TestCaptureWithSCACard(t *testing.T) {
 	if e != nil {
 		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
-	t.Cleanup(func() {
-		appstripetest.CancelIntent(cur.GetISO4217(), intent.ID)
-	})
+	appstripetest.CleanupIntentIfCreated(t, cur.GetISO4217(), intent.ID)
 
 	_, e = apppaymentintentcapture.Capture(intent.ID, cur)
 	if e == nil {
