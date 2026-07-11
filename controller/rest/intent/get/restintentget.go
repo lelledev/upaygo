@@ -17,6 +17,10 @@ const (
 	Method = http.MethodGet
 
 	responseTye = "application/json"
+
+	errorParamQueryMissing = "error during the query parsing: missing currency"
+	errorAmountCreation    = "error during the intent amount creation: '%v'"
+	errorIntentEncoding    = "error during the intent encoding: '%v'"
 )
 
 // @Summary Get an intent
@@ -47,7 +51,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if e = json.NewEncoder(w).Encode(appintent); e != nil {
-		apperror.WriteJSON(w, fmt.Errorf("encode payment intent response: %w", e))
+		apperror.WriteJSON(w, fmt.Errorf(errorIntentEncoding, e))
 	}
 }
 
@@ -58,12 +62,12 @@ func getParams(r *http.Request) (string, appcurrency.Currency, error) {
 
 	cursym := r.URL.Query().Get("currency")
 	if cursym == "" {
-		return "", nil, apperror.Invalid("error during the query parsing: missing currency")
+		return "", nil, apperror.Invalid(errorParamQueryMissing)
 	}
 
 	cur, e := appcurrency.New(cursym)
 	if e != nil {
-		return "", nil, apperror.Invalid(fmt.Sprintf("error during the intent amount creation: %v", e))
+		return "", nil, apperror.Invalid(fmt.Sprintf(errorAmountCreation, e))
 	}
 
 	return ID, cur, nil

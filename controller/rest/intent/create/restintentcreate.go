@@ -18,6 +18,12 @@ const (
 	Method = http.MethodPost
 
 	responseTye = "application/json"
+
+	errorParsingParam    = "error during the payload parsing: '%v'"
+	errorParamMissing    = "missing payload mandatory parameters to create a payment intent"
+	errorParamAmountType = "error during the amount conversion: '%v'"
+	errorAmountCreation  = "error during the intent amount creation: '%v'"
+	errorIntentEncoding  = "error during the intent encoding: '%v'"
 )
 
 // @Summary Create an intent
@@ -50,29 +56,29 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if e = json.NewEncoder(w).Encode(appintent); e != nil {
-		apperror.WriteJSON(w, fmt.Errorf("encode payment intent response: %w", e))
+		apperror.WriteJSON(w, fmt.Errorf(errorIntentEncoding, e))
 	}
 }
 
 // Get and transform the payload params into domain structs
 func getParams(r *http.Request) (appamount.Amount, appsource.Source, appcustomer.Customer, error) {
 	if e := r.ParseForm(); e != nil {
-		return nil, nil, nil, apperror.Invalid(fmt.Sprintf("error during the payload parsing: %v", e))
+		return nil, nil, nil, apperror.Invalid(fmt.Sprintf(errorParsingParam, e))
 	}
 
 	p := r.Form
 	if p.Get("currency") == "" || p.Get("amount") == "" || p.Get("payment_source") == "" {
-		return nil, nil, nil, apperror.Invalid("missing payload mandatory parameters to create a payment intent")
+		return nil, nil, nil, apperror.Invalid(errorParamMissing)
 	}
 
 	ai, e := strconv.Atoi(p.Get("amount"))
 	if e != nil {
-		return nil, nil, nil, apperror.Invalid(fmt.Sprintf("error during the amount conversion: %v", e))
+		return nil, nil, nil, apperror.Invalid(fmt.Sprintf(errorParamAmountType, e))
 	}
 
 	amount, e := appamount.New(ai, p.Get("currency"))
 	if e != nil {
-		return nil, nil, nil, apperror.Invalid(fmt.Sprintf("error during the intent amount creation: %v", e))
+		return nil, nil, nil, apperror.Invalid(fmt.Sprintf(errorAmountCreation, e))
 	}
 
 	var cus appcustomer.Customer

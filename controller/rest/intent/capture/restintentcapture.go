@@ -17,6 +17,11 @@ const (
 	Method = http.MethodPost
 
 	responseTye = "application/json"
+
+	errorParsingParam        = "error during the payload parsing: '%v'"
+	errorParamPayloadMissing = "missing payload mandatory parameters to capture a payment intent"
+	errorAmountCreation      = "error during the intent amount creation: '%v'"
+	errorIntentEncoding      = "error during the intent encoding: '%v'"
 )
 
 // @Summary Capture an intent
@@ -47,7 +52,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if e = json.NewEncoder(w).Encode(appintent); e != nil {
-		apperror.WriteJSON(w, fmt.Errorf("encode payment intent response: %w", e))
+		apperror.WriteJSON(w, fmt.Errorf(errorIntentEncoding, e))
 	}
 }
 
@@ -57,17 +62,17 @@ func getParams(r *http.Request) (string, appcurrency.Currency, error) {
 	ID := vars["id"]
 
 	if e := r.ParseForm(); e != nil {
-		return "", nil, apperror.Invalid(fmt.Sprintf("error during the payload parsing: %v", e))
+		return "", nil, apperror.Invalid(fmt.Sprintf(errorParsingParam, e))
 	}
 
 	p := r.Form
 	if p.Get("currency") == "" {
-		return "", nil, apperror.Invalid("missing payload mandatory parameters to capture a payment intent")
+		return "", nil, apperror.Invalid(errorParamPayloadMissing)
 	}
 
 	cur, e := appcurrency.New(p.Get("currency"))
 	if e != nil {
-		return "", nil, apperror.Invalid(fmt.Sprintf("error during the intent amount creation: %v", e))
+		return "", nil, apperror.Invalid(fmt.Sprintf(errorAmountCreation, e))
 	}
 
 	return ID, cur, nil
