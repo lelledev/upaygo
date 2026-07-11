@@ -17,6 +17,8 @@ import (
 )
 
 func TestAsStripeError(t *testing.T) {
+	t.Parallel()
+
 	se := &stripe.Error{
 		Msg:            "No such customer: cus_xxx",
 		HTTPStatusCode: http.StatusBadRequest,
@@ -24,51 +26,65 @@ func TestAsStripeError(t *testing.T) {
 		Type:           stripe.ErrorTypeInvalidRequest,
 	}
 
-	got, ok := apperror.AsStripeError(se)
-	if !ok {
-		t.Fatal("expected AsStripeError to match a *stripe.Error")
-	}
-	if got.Msg != se.Msg {
-		t.Errorf("Msg = %q, want %q", got.Msg, se.Msg)
-	}
-
-	wrapped := fmt.Errorf("create customer: %w", se)
-	got, ok = apperror.AsStripeError(wrapped)
-	if !ok {
-		t.Fatal("expected AsStripeError to unwrap a wrapped *stripe.Error")
-	}
-	if got.Msg != se.Msg {
-		t.Errorf("unwrapped Msg = %q, want %q", got.Msg, se.Msg)
+	tests := []struct {
+		name    string
+		err     error
+		wantOK  bool
+		wantMsg string
+	}{
+		{"direct", se, true, se.Msg},
+		{"wrapped", fmt.Errorf("create customer: %w", se), true, se.Msg},
+		{"plain", errors.New("plain"), false, ""},
+		{"nil", nil, false, ""},
 	}
 
-	if _, ok := apperror.AsStripeError(errors.New("plain")); ok {
-		t.Error("plain errors must not match AsStripeError")
-	}
-	if _, ok := apperror.AsStripeError(nil); ok {
-		t.Error("nil must not match AsStripeError")
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got, ok := apperror.AsStripeError(tc.err)
+			if ok != tc.wantOK {
+				t.Fatalf("ok = %v, want %v", ok, tc.wantOK)
+			}
+			if !tc.wantOK {
+				return
+			}
+			if got.Msg != tc.wantMsg {
+				t.Errorf("Msg = %q, want %q", got.Msg, tc.wantMsg)
+			}
+		})
 	}
 }
 
 func TestMessage(t *testing.T) {
+	t.Parallel()
+
 	se := &stripe.Error{Msg: "card declined"}
-	if got := apperror.Message(se); got != "card declined" {
-		t.Errorf("Message(stripe) = %q, want card declined", got)
+	tests := []struct {
+		name string
+		err  error
+		want string
+	}{
+		{"stripe", se, "card declined"},
+		{"wrapped stripe", fmt.Errorf("capture intent: %w", se), "card declined"},
+		{"plain", errors.New("plain failure"), "plain failure"},
+		{"nil", nil, ""},
+		{"invalid", apperror.Invalid("missing currency"), "missing currency"},
+		{"invalid cause", apperror.InvalidCause("currency parsing", errors.New("bad iso")), "currency parsing: bad iso"},
 	}
 
-	wrapped := fmt.Errorf("capture intent: %w", se)
-	if got := apperror.Message(wrapped); got != "card declined" {
-		t.Errorf("Message(wrapped stripe) = %q, want card declined", got)
-	}
-
-	if got := apperror.Message(errors.New("plain failure")); got != "plain failure" {
-		t.Errorf("Message(plain) = %q, want plain failure", got)
-	}
-	if got := apperror.Message(nil); got != "" {
-		t.Errorf("Message(nil) = %q, want empty", got)
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if got := apperror.Message(tc.err); got != tc.want {
+				t.Errorf("Message() = %q, want %q", got, tc.want)
+			}
+		})
 	}
 }
 
 func TestHTTPStatus(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name string
 		err  error
@@ -77,6 +93,7 @@ func TestHTTPStatus(t *testing.T) {
 		{"nil", nil, http.StatusOK},
 		{"invalid", apperror.Invalid("missing currency"), http.StatusBadRequest},
 		{"wrapped invalid", fmt.Errorf("params: %w", apperror.Invalid("bad")), http.StatusBadRequest},
+		{"invalid cause", apperror.InvalidCause("parse", errors.New("x")), http.StatusBadRequest},
 		{"stripe 400", &stripe.Error{HTTPStatusCode: 400, Msg: "bad request"}, http.StatusBadRequest},
 		{"stripe 402", &stripe.Error{HTTPStatusCode: 402, Msg: "card"}, http.StatusPaymentRequired},
 		{"stripe 404", &stripe.Error{HTTPStatusCode: 404, Msg: "missing"}, http.StatusNotFound},
@@ -88,6 +105,7 @@ func TestHTTPStatus(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			if got := apperror.HTTPStatus(tc.err); got != tc.want {
 				t.Errorf("HTTPStatus() = %d, want %d", got, tc.want)
 			}
@@ -96,74 +114,132 @@ func TestHTTPStatus(t *testing.T) {
 }
 
 func TestIsInvalid(t *testing.T) {
-	if !apperror.IsInvalid(apperror.Invalid("x")) {
-		t.Error("IsInvalid should match Invalid()")
+	t.Parallel()
+
+	cause := errors.New("underlying")
+	tests := []struct {
+		name string
+		err  error
+		want bool
+	}{
+		{"invalid", apperror.Invalid("x"), true},
+		{"invalid cause", apperror.InvalidCause("x", cause), true},
+		{"wrapped invalid", fmt.Errorf("wrap: %w", apperror.Invalid("x")), true},
+		{"plain", errors.New("nope"), false},
 	}
-	if !apperror.IsInvalid(fmt.Errorf("wrap: %w", apperror.Invalid("x"))) {
-		t.Error("IsInvalid should match wrapped Invalid()")
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if got := apperror.IsInvalid(tc.err); got != tc.want {
+				t.Errorf("IsInvalid() = %v, want %v", got, tc.want)
+			}
+		})
 	}
-	if apperror.IsInvalid(errors.New("nope")) {
-		t.Error("IsInvalid must not match plain errors")
+}
+
+func TestInvalidCauseUnwrap(t *testing.T) {
+	t.Parallel()
+
+	cause := errors.New("bad iso")
+	err := apperror.InvalidCause("currency parsing", cause)
+	if !errors.Is(err, cause) {
+		t.Fatal("InvalidCause must unwrap to the original cause")
+	}
+	if got := err.Error(); got != "currency parsing: bad iso" {
+		t.Errorf("Error() = %q", got)
 	}
 }
 
 func TestWriteJSON(t *testing.T) {
-	rec := httptest.NewRecorder()
-	err := fmt.Errorf("get intent: %w", &stripe.Error{
-		Msg:            "No such payment_intent: pi_xxx",
-		HTTPStatusCode: http.StatusNotFound,
-	})
+	t.Parallel()
 
-	apperror.WriteJSON(rec, err)
+	tests := []struct {
+		name       string
+		err        error
+		wantStatus int
+		wantMsg    string
+		wantBody   bool
+	}{
+		{
+			name: "stripe error",
+			err: fmt.Errorf("get intent: %w", &stripe.Error{
+				Msg:            "No such payment_intent: pi_xxx",
+				HTTPStatusCode: http.StatusNotFound,
+			}),
+			wantStatus: http.StatusNotFound,
+			wantMsg:    "No such payment_intent: pi_xxx",
+			wantBody:   true,
+		},
+		{
+			name:       "invalid error",
+			err:        apperror.Invalid("missing currency"),
+			wantStatus: http.StatusBadRequest,
+			wantMsg:    "missing currency",
+			wantBody:   true,
+		},
+		{
+			name:       "invalid cause",
+			err:        apperror.InvalidCause("currency parsing", errors.New("bad iso")),
+			wantStatus: http.StatusBadRequest,
+			wantMsg:    "currency parsing: bad iso",
+			wantBody:   true,
+		},
+		{
+			name:       "nil error",
+			err:        nil,
+			wantStatus: http.StatusOK,
+			wantBody:   false,
+		},
+	}
 
-	if rec.Code != http.StatusNotFound {
-		t.Errorf("status = %d, want 404", rec.Code)
-	}
-	if ct := rec.Header().Get("Content-Type"); ct != "application/json" {
-		t.Errorf("Content-Type = %q, want application/json", ct)
-	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			rec := httptest.NewRecorder()
+			apperror.WriteJSON(rec, tc.err)
 
-	var body apperror.RESTError
-	if e := json.NewDecoder(rec.Body).Decode(&body); e != nil {
-		t.Fatalf("decode body: %v", e)
-	}
-	if body.M != "No such payment_intent: pi_xxx" {
-		t.Errorf("body.error = %q, want Stripe message", body.M)
-	}
-}
-
-func TestWriteJSONInvalid(t *testing.T) {
-	rec := httptest.NewRecorder()
-	apperror.WriteJSON(rec, apperror.Invalid("missing currency"))
-
-	if rec.Code != http.StatusBadRequest {
-		t.Errorf("status = %d, want 400", rec.Code)
-	}
-
-	var body apperror.RESTError
-	if e := json.NewDecoder(rec.Body).Decode(&body); e != nil {
-		t.Fatalf("decode body: %v", e)
-	}
-	if body.M != "missing currency" {
-		t.Errorf("body.error = %q", body.M)
-	}
-}
-
-func TestWriteJSONNil(t *testing.T) {
-	rec := httptest.NewRecorder()
-	apperror.WriteJSON(rec, nil)
-	if rec.Code != http.StatusOK || rec.Body.Len() != 0 {
-		t.Errorf("nil err should not write a response, code=%d body=%q", rec.Code, rec.Body.String())
+			if rec.Code != tc.wantStatus {
+				t.Errorf("status = %d, want %d", rec.Code, tc.wantStatus)
+			}
+			if !tc.wantBody {
+				if rec.Body.Len() != 0 {
+					t.Errorf("expected empty body, got %q", rec.Body.String())
+				}
+				return
+			}
+			if ct := rec.Header().Get("Content-Type"); ct != "application/json" {
+				t.Errorf("Content-Type = %q, want application/json", ct)
+			}
+			var body apperror.RESTError
+			if e := json.NewDecoder(rec.Body).Decode(&body); e != nil {
+				t.Fatalf("decode body: %v", e)
+			}
+			if body.M != tc.wantMsg {
+				t.Errorf("body.error = %q, want %q", body.M, tc.wantMsg)
+			}
+		})
 	}
 }
 
 func TestRESTErrorError(t *testing.T) {
-	e := &apperror.RESTError{M: "fail"}
-	if e.Error() != "fail" {
-		t.Errorf("RESTError.Error() = %q", e.Error())
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		err  *apperror.RESTError
+		want string
+	}{
+		{"value", &apperror.RESTError{M: "fail"}, "fail"},
+		{"nil receiver", nil, ""},
 	}
-	var nilE *apperror.RESTError
-	if nilE.Error() != "" {
-		t.Errorf("nil RESTError.Error() = %q", nilE.Error())
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if got := tc.err.Error(); got != tc.want {
+				t.Errorf("Error() = %q, want %q", got, tc.want)
+			}
+		})
 	}
 }

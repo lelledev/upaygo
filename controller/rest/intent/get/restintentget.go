@@ -19,8 +19,8 @@ const (
 	responseTye = "application/json"
 
 	errorParamQueryMissing = "error during the query parsing: missing currency"
-	errorAmountCreation    = "error during the intent amount creation: '%v'"
-	errorIntentEncoding    = "error during the intent encoding: '%v'"
+	errorCurrencyParsing   = "error during the currency parsing"
+	errorIntentEncoding    = "error during the intent encoding: %w"
 )
 
 // @Summary Get an intent
@@ -67,7 +67,7 @@ func getParams(r *http.Request) (string, appcurrency.Currency, error) {
 
 	cur, e := appcurrency.New(cursym)
 	if e != nil {
-		return "", nil, apperror.Invalid(fmt.Sprintf(errorAmountCreation, e))
+		return "", nil, apperror.InvalidCause(errorCurrencyParsing, e)
 	}
 
 	return ID, cur, nil

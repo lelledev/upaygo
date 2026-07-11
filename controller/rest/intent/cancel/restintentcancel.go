@@ -18,10 +18,10 @@ const (
 
 	responseTye = "application/json"
 
-	errorParsingParam        = "error during the payload parsing: '%v'"
+	errorParsingParam        = "error during the payload parsing"
 	errorParamPayloadMissing = "missing payload mandatory parameters to cancel a payment intent"
-	errorAmountCreation      = "error during the intent amount creation: '%v'"
-	errorIntentEncoding      = "error during the intent encoding: '%v'"
+	errorCurrencyParsing     = "error during the currency parsing"
+	errorIntentEncoding      = "error during the intent encoding: %w"
 )
 
 // @Summary Cancel an intent
@@ -62,7 +62,7 @@ func getParams(r *http.Request) (string, appcurrency.Currency, error) {
 	ID := vars["id"]
 
 	if e := r.ParseForm(); e != nil {
-		return "", nil, apperror.Invalid(fmt.Sprintf(errorParsingParam, e))
+		return "", nil, apperror.InvalidCause(errorParsingParam, e)
 	}
 
 	p := r.Form
@@ -72,7 +72,7 @@ func getParams(r *http.Request) (string, appcurrency.Currency, error) {
 
 	cur, e := appcurrency.New(p.Get("currency"))
 	if e != nil {
-		return "", nil, apperror.Invalid(fmt.Sprintf(errorAmountCreation, e))
+		return "", nil, apperror.InvalidCause(errorCurrencyParsing, e)
 	}
 
 	return ID, cur, nil
