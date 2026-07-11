@@ -19,6 +19,7 @@ import (
 	apprestintentcreate "github.com/lelledev/upaygo/controller/rest/intent/create"
 	appcurrency "github.com/lelledev/upaygo/currency"
 	appcustomer "github.com/lelledev/upaygo/customer"
+	"github.com/lelledev/upaygo/internal/stripetest"
 )
 
 const (
@@ -66,10 +67,7 @@ func Test(t *testing.T) {
 
 	c, _ := appcurrency.New("EUR")
 
-	sc, e := appconfig.ClientForCurrency(c.GetISO4217())
-	if e != nil {
-		t.Fatalf(errorRestCreateIntent, e)
-	}
+	sc := stripetest.Client(t, c.GetISO4217())
 
 	cus, e := appcustomer.NewStripe("email@email.com", c)
 	if e != nil {

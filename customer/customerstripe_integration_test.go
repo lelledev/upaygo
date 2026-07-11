@@ -14,6 +14,7 @@ import (
 
 	appconfig "github.com/lelledev/upaygo/config"
 	appcustomer "github.com/lelledev/upaygo/customer"
+	"github.com/lelledev/upaygo/internal/stripetest"
 )
 
 func TestMain(m *testing.M) {
@@ -46,10 +47,7 @@ func TestNewStripe(t *testing.T) {
 	email := "email@email.com"
 	c, _ := appcurrency.New("EUR")
 
-	sc, e := appconfig.ClientForCurrency(c.GetISO4217())
-	if e != nil {
-		t.Fatalf("impossible to create Stripe client for cleanup: %v", e)
-	}
+	sc := stripetest.Client(t, c.GetISO4217())
 
 	got, e := appcustomer.NewStripe(email, c)
 	if e != nil {

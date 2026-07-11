@@ -14,6 +14,7 @@ import (
 	appconfig "github.com/lelledev/upaygo/config"
 	appcurrency "github.com/lelledev/upaygo/currency"
 	appcustomer "github.com/lelledev/upaygo/customer"
+	"github.com/lelledev/upaygo/internal/stripetest"
 	apppaymentintentcreate "github.com/lelledev/upaygo/payment/intent/create"
 	apppaymentsource "github.com/lelledev/upaygo/payment/source"
 )
@@ -50,10 +51,7 @@ func TestCreate(t *testing.T) {
 
 	// Obtain cleanup client before creating Stripe resources so a client
 	// failure cannot leave them dangling without a registered t.Cleanup.
-	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
-	if e != nil {
-		t.Fatalf("impossible to create Stripe client for cleanup: %v", e)
-	}
+	sc := stripetest.Client(t, cur.GetISO4217())
 
 	cus, e := appcustomer.NewStripe("email@email.com", cur)
 	if e != nil {
@@ -139,10 +137,7 @@ func TestCreateWithoutCustomer(t *testing.T) {
 	a, _ := appamount.New(am, cur.GetISO4217())
 	ps := apppaymentsource.New("pm_card_visa")
 
-	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
-	if e != nil {
-		t.Fatalf("impossible to create Stripe client for cleanup: %v", e)
-	}
+	sc := stripetest.Client(t, cur.GetISO4217())
 
 	pi, e := apppaymentintentcreate.Create(a, ps, nil)
 	if e != nil {

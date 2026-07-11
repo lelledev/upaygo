@@ -12,6 +12,7 @@ import (
 
 	appconfig "github.com/lelledev/upaygo/config"
 	appcurrency "github.com/lelledev/upaygo/currency"
+	"github.com/lelledev/upaygo/internal/stripetest"
 	apppaymentintentget "github.com/lelledev/upaygo/payment/intent/get"
 
 	"github.com/stripe/stripe-go/v82"
@@ -53,10 +54,7 @@ func TestGet(t *testing.T) {
 		PaymentMethodTypes: []*string{new("card")},
 	}
 
-	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
-	if e != nil {
-		t.Fatalf("impossible to create Stripe client: %v", e)
-	}
+	sc := stripetest.Client(t, cur.GetISO4217())
 
 	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
