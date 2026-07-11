@@ -1,7 +1,9 @@
 package apppaymentintentcreate
 
 import (
+	"context"
 	"errors"
+	"fmt"
 
 	appamount "github.com/lelledev/upaygo/amount"
 	appconfig "github.com/lelledev/upaygo/config"
@@ -11,7 +13,6 @@ import (
 	apppaymentsource "github.com/lelledev/upaygo/payment/source"
 
 	"github.com/stripe/stripe-go/v82"
-	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 // Create creates an intent in Stripe and returns it as an instance of Intent
@@ -20,14 +21,12 @@ func Create(a appamount.Amount, p apppaymentsource.Source, c appcustomer.Custome
 		return nil, errors.New("impossible to create a payment intent without required parameters")
 	}
 
-	sck, e := appconfig.GetStripeAPIConfigByCurrency(a.GetCurrency().GetISO4217())
+	sc, e := appconfig.GetStripeClientByCurrency(a.GetCurrency().GetISO4217())
 	if e != nil {
-		return nil, e
+		return nil, fmt.Errorf("impossible to get the Stripe client to create the payment intent: %w", e)
 	}
 
-	stripe.Key = sck.GetSK()
-
-	ic := &stripe.PaymentIntentParams{
+	ic := &stripe.PaymentIntentCreateParams{
 		Amount:             new(int64(a.GetAmount())),
 		Currency:           new(a.GetCurrency().GetISO4217()),
 		PaymentMethod:      new(p.GetGatewayReference()),
@@ -46,7 +45,7 @@ func Create(a appamount.Amount, p apppaymentsource.Source, c appcustomer.Custome
 		ic.Customer = new(c.GetGatewayReference())
 	}
 
-	intent, e := paymentintent.New(ic)
+	intent, e := sc.V1PaymentIntents.Create(context.Background(), ic)
 	if e != nil {
 		m, es := apperror.GetStripeErrorMessage(e)
 		if es == nil {

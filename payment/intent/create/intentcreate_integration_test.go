@@ -13,11 +13,9 @@ import (
 	appconfig "github.com/lelledev/upaygo/config"
 	appcurrency "github.com/lelledev/upaygo/currency"
 	appcustomer "github.com/lelledev/upaygo/customer"
+	appstripetest "github.com/lelledev/upaygo/internal/stripetest"
 	apppaymentintentcreate "github.com/lelledev/upaygo/payment/intent/create"
 	apppaymentsource "github.com/lelledev/upaygo/payment/source"
-
-	"github.com/stripe/stripe-go/v82/customer"
-	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 func TestMain(m *testing.M) {
@@ -49,14 +47,22 @@ func TestMain(m *testing.M) {
 func TestCreate(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := 2045
-	cus, _ := appcustomer.NewStripe("email@email.com", cur)
+	cus, e := appcustomer.NewStripe("email@email.com", cur)
+	if e != nil {
+		t.Fatalf("impossible to create a customer for testing: %v", e)
+	}
+	t.Cleanup(func() {
+		appstripetest.DeleteCustomer(cur.GetISO4217(), cus.GetGatewayReference())
+	})
+
 	a, _ := appamount.New(am, cur.GetISO4217())
 	ps := apppaymentsource.New("pm_card_visa")
 
 	pi, e := apppaymentintentcreate.Create(a, ps, cus)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent: %v", e)
+		t.Fatalf("impossible to create a new payment intent: %v", e)
 	}
+	appstripetest.CleanupIntentIfCreated(t, cur.GetISO4217(), pi.GetGatewayReference())
 
 	if pi.GetGatewayReference() == "" {
 		t.Error("intent new is incorrect, created an intent without gateway reference")
@@ -105,9 +111,6 @@ func TestCreate(t *testing.T) {
 	if !pi.RequiresConfirmation() {
 		t.Error("a new intent should require confirmation")
 	}
-
-	_, _ = paymentintent.Cancel(pi.GetGatewayReference(), nil)
-	_, _ = customer.Del(cus.GetGatewayReference(), nil)
 }
 
 func TestCreateWithoutCustomer(t *testing.T) {
@@ -118,14 +121,13 @@ func TestCreateWithoutCustomer(t *testing.T) {
 
 	pi, e := apppaymentintentcreate.Create(a, ps, nil)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent: %v", e)
+		t.Fatalf("impossible to create a new payment intent: %v", e)
 	}
+	appstripetest.CleanupIntentIfCreated(t, cur.GetISO4217(), pi.GetGatewayReference())
 
 	if pi.GetCustomer() != nil {
 		t.Errorf("intent customer should be blank, got: %v", pi.GetCustomer())
 	}
-
-	_, _ = paymentintent.Cancel(pi.GetGatewayReference(), nil)
 }
 
 func TestCreateWithoutAmount(t *testing.T) {

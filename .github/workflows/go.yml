@@ -18,6 +18,20 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Stripe legacy API guard
+        run: |
+          status=0
+          matches=$(grep -RnE --include='*.go' --exclude-dir=vendor 'stripe[A-Za-z0-9_]*\.Key\b|stripe-go/v82/(paymentintent|customer)\b' .) || status=$?
+          if [ "$status" -gt 1 ]; then
+            echo "Unable to scan Go sources for legacy stripe-go API usage"
+            exit 1
+          fi
+          if [ -n "$matches" ]; then
+            echo "Legacy stripe-go API usage found: use stripe.Client via appconfig.GetStripeClientByCurrency"
+            echo "$matches"
+            exit 1
+          fi
+
       - name: Swagger - Installation
         run: go install github.com/swaggo/swag/cmd/swag@latest
 

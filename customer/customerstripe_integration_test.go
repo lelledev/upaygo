@@ -9,12 +9,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stripe/stripe-go/v82/customer"
-
 	appcurrency "github.com/lelledev/upaygo/currency"
 
 	appconfig "github.com/lelledev/upaygo/config"
 	appcustomer "github.com/lelledev/upaygo/customer"
+	appstripetest "github.com/lelledev/upaygo/internal/stripetest"
 )
 
 func TestMain(m *testing.M) {
@@ -49,8 +48,11 @@ func TestNewStripe(t *testing.T) {
 
 	got, e := appcustomer.NewStripe(email, c)
 	if e != nil {
-		t.Errorf("error during the appcustomer creation with Stripe: %v", e)
+		t.Fatalf("error during the appcustomer creation with Stripe: %v", e)
 	}
+	t.Cleanup(func() {
+		appstripetest.DeleteCustomer(c.GetISO4217(), got.GetGatewayReference())
+	})
 
 	if got.GetGatewayReference() == "" {
 		t.Errorf("The new customer.gateway_reference is empty, got: %v", got.GetGatewayReference())
@@ -59,6 +61,4 @@ func TestNewStripe(t *testing.T) {
 	if got.GetEmail() != email {
 		t.Errorf("The new customer.email is incorrect, got: %v want %v", got.GetEmail(), email)
 	}
-
-	_, _ = customer.Del(got.GetGatewayReference(), nil)
 }

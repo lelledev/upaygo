@@ -15,6 +15,10 @@
 	event = pre-commit
 	command = "bash -c 'if command -v swag >/dev/null 2>&1; then swag init; else go run github.com/swaggo/swag/cmd/swag@latest init; fi'"
 
+[hook "stripe-legacy-api"]
+	event = pre-commit
+	command = "bash -c 'status=0; matches=$(grep -RnE --include=\"*.go\" --exclude-dir=vendor \"stripe[A-Za-z0-9_]*\\.Key\\b|stripe-go/v82/(paymentintent|customer)\\b\" .) || status=$?; if [ \"$status\" -gt 1 ]; then echo \"Unable to scan Go sources for legacy stripe-go API usage\"; exit 1; fi; test -z \"$matches\" || { echo \"Legacy stripe-go API usage found, use stripe.Client via appconfig.GetStripeClientByCurrency:\"; echo \"$matches\"; exit 1; }'"
+
 [hook "gofmt"]
 	event = pre-commit
 	command = "bash -c 'files=$(gofmt -l . | grep -v \"^vendor/\" || true); test -z \"$files\" || { echo \"The following files need gofmt:\"; echo \"$files\"; exit 1; }'"

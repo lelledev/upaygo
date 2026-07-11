@@ -14,12 +14,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stripe/stripe-go/v82/customer"
-
 	appconfig "github.com/lelledev/upaygo/config"
 	apprestintentcreate "github.com/lelledev/upaygo/controller/rest/intent/create"
 	appcurrency "github.com/lelledev/upaygo/currency"
 	appcustomer "github.com/lelledev/upaygo/customer"
+	appstripetest "github.com/lelledev/upaygo/internal/stripetest"
 )
 
 const (
@@ -68,8 +67,11 @@ func Test(t *testing.T) {
 	c, _ := appcurrency.New("EUR")
 	cus, e := appcustomer.NewStripe("email@email.com", c)
 	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
+		t.Fatalf(errorRestCreateIntent, e)
 	}
+	t.Cleanup(func() {
+		appstripetest.DeleteCustomer(c.GetISO4217(), cus.GetGatewayReference())
+	})
 
 	a, ps, w := 7777, "pm_card_visa", httptest.NewRecorder()
 	p := fmt.Sprintf("currency=%v&amount=%v&payment_source=%v&customer_reference=%v", c.GetISO4217(), a, ps, cus.GetGatewayReference())
@@ -90,6 +92,8 @@ func Test(t *testing.T) {
 		t.Errorf(errorRestCreateIntent, e)
 	}
 
+	appstripetest.CleanupIntentIfCreated(t, c.GetISO4217(), resI.IntentGatewayReference)
+
 	if resI.IntentGatewayReference == "" {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the gateway reference")
 	}
@@ -97,8 +101,6 @@ func Test(t *testing.T) {
 	if resI.Customer.R == "" {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the customer reference")
 	}
-
-	_, _ = customer.Del(cus.GetGatewayReference(), nil)
 }
 
 // Test a create intent request without customer
@@ -124,6 +126,8 @@ func TestWithoutCustomer(t *testing.T) {
 	if e != nil {
 		t.Errorf(errorRestCreateIntent, e)
 	}
+
+	appstripetest.CleanupIntentIfCreated(t, c, resI.IntentGatewayReference)
 
 	if resI.IntentGatewayReference == "" {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the gateway reference")
