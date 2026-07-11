@@ -2,14 +2,18 @@ package apperror
 
 import "errors"
 
-// InvalidError is a client-facing validation / bad-request error.
-// Use Invalid or InvalidCause so HTTP handlers can map it to 400.
-// When Err is set, Unwrap exposes it for errors.Is / errors.As.
+// InvalidError represents a client-facing validation error mapped to HTTP 400.
+// Use Invalid or InvalidCause to construct one. When Err is set, Unwrap
+// exposes it for errors.Is / errors.As.
 type InvalidError struct {
+	// Msg is the validation context shown to clients.
 	Msg string
+	// Err is an optional underlying cause; may be nil.
 	Err error
 }
 
+// Error implements the error interface, combining Msg with the wrapped
+// cause (if any).
 func (e *InvalidError) Error() string {
 	if e == nil {
 		return ""

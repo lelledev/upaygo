@@ -21,7 +21,7 @@ mutation($id: ID!) {
 }' -F id='PRRT_...'
 ```
 
-List unresolved threads on a PR:
+List unresolved threads for a PR:
 
 ```bash
 gh api graphql -f query='
