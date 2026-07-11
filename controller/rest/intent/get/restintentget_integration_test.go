@@ -18,10 +18,10 @@ import (
 
 	appconfig "github.com/lelledev/upaygo/config"
 	appcurrency "github.com/lelledev/upaygo/currency"
+	appstripetest "github.com/lelledev/upaygo/internal/stripetest"
 
 	"github.com/gorilla/mux"
 	"github.com/stripe/stripe-go/v82"
-	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 const (
@@ -66,7 +66,7 @@ func TestMain(m *testing.M) {
 func createTestIntent() (string, error) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(4567)
-	pip := &stripe.PaymentIntentParams{
+	pip := &stripe.PaymentIntentCreateParams{
 		Amount:             new(am),
 		Currency:           new(cur.GetISO4217()),
 		PaymentMethod:      new("pm_card_visa"),
@@ -79,10 +79,7 @@ func createTestIntent() (string, error) {
 		PaymentMethodTypes: []*string{new("card")},
 	}
 
-	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
-	stripe.Key = sck.GetSK()
-
-	intent, e := paymentintent.New(pip)
+	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
 		return "", fmt.Errorf("impossible to create a new payment intent for testing: %v", e)
 	}
@@ -124,5 +121,5 @@ func Test(t *testing.T) {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the gateway reference")
 	}
 
-	_, _ = paymentintent.Cancel(intentID, nil)
+	appstripetest.CancelIntent("EUR", intentID)
 }

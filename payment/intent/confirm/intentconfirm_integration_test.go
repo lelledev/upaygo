@@ -11,10 +11,10 @@ import (
 
 	appconfig "github.com/lelledev/upaygo/config"
 	appcurrency "github.com/lelledev/upaygo/currency"
+	appstripetest "github.com/lelledev/upaygo/internal/stripetest"
 	apppaymentintentconfirm "github.com/lelledev/upaygo/payment/intent/confirm"
 
 	"github.com/stripe/stripe-go/v82"
-	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 func TestMain(m *testing.M) {
@@ -46,7 +46,7 @@ func TestMain(m *testing.M) {
 func TestConfirm(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
-	pip := &stripe.PaymentIntentParams{
+	pip := &stripe.PaymentIntentCreateParams{
 		Amount:             new(am),
 		Currency:           new(cur.GetISO4217()),
 		ConfirmationMethod: new("manual"),
@@ -56,10 +56,7 @@ func TestConfirm(t *testing.T) {
 		PaymentMethodTypes: []*string{new("card")},
 	}
 
-	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
-	stripe.Key = sck.GetSK()
-
-	intent, e := paymentintent.New(pip)
+	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
 		t.Errorf("impossible to create a new payment intent for testing: %v", e)
 	}
@@ -73,7 +70,7 @@ func TestConfirm(t *testing.T) {
 		t.Error("intent confirmation is incorrect, got an intent that requires confirmation")
 	}
 
-	_, _ = paymentintent.Cancel(appintent.GetGatewayReference(), nil)
+	appstripetest.CancelIntent(cur.GetISO4217(), appintent.GetGatewayReference())
 }
 
 func TestConfirmWithoutID(t *testing.T) {

@@ -61,6 +61,15 @@ go run main.go -config=config.json
     1) Yes, cancel the intent
     2) No, capture the intent
 
+## Stripe client
+
+All Stripe calls go through a per-currency client built by
+`appconfig.GetStripeClientByCurrency` (the stripe-go `stripe.Client` API), so
+the secret key is bound to the client instead of shared global state. The
+deprecated global key (`stripe.Key`) and the legacy resource packages
+(`stripe-go/v82/paymentintent`, `stripe-go/v82/customer`) must not be used:
+the pre-commit hook and CI reject them.
+
 ## Tests
 
 ```bash

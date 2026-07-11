@@ -13,11 +13,9 @@ import (
 	appconfig "github.com/lelledev/upaygo/config"
 	appcurrency "github.com/lelledev/upaygo/currency"
 	appcustomer "github.com/lelledev/upaygo/customer"
+	appstripetest "github.com/lelledev/upaygo/internal/stripetest"
 	apppaymentintentcreate "github.com/lelledev/upaygo/payment/intent/create"
 	apppaymentsource "github.com/lelledev/upaygo/payment/source"
-
-	"github.com/stripe/stripe-go/v82/customer"
-	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 func TestMain(m *testing.M) {
@@ -106,8 +104,8 @@ func TestCreate(t *testing.T) {
 		t.Error("a new intent should require confirmation")
 	}
 
-	_, _ = paymentintent.Cancel(pi.GetGatewayReference(), nil)
-	_, _ = customer.Del(cus.GetGatewayReference(), nil)
+	appstripetest.CancelIntent(cur.GetISO4217(), pi.GetGatewayReference())
+	appstripetest.DeleteCustomer(cur.GetISO4217(), cus.GetGatewayReference())
 }
 
 func TestCreateWithoutCustomer(t *testing.T) {
@@ -125,7 +123,7 @@ func TestCreateWithoutCustomer(t *testing.T) {
 		t.Errorf("intent customer should be blank, got: %v", pi.GetCustomer())
 	}
 
-	_, _ = paymentintent.Cancel(pi.GetGatewayReference(), nil)
+	appstripetest.CancelIntent(cur.GetISO4217(), pi.GetGatewayReference())
 }
 
 func TestCreateWithoutAmount(t *testing.T) {

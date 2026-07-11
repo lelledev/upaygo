@@ -14,12 +14,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stripe/stripe-go/v82/customer"
-
 	appconfig "github.com/lelledev/upaygo/config"
 	apprestintentcreate "github.com/lelledev/upaygo/controller/rest/intent/create"
 	appcurrency "github.com/lelledev/upaygo/currency"
 	appcustomer "github.com/lelledev/upaygo/customer"
+	appstripetest "github.com/lelledev/upaygo/internal/stripetest"
 )
 
 const (
@@ -98,7 +97,7 @@ func Test(t *testing.T) {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the customer reference")
 	}
 
-	_, _ = customer.Del(cus.GetGatewayReference(), nil)
+	appstripetest.DeleteCustomer(c.GetISO4217(), cus.GetGatewayReference())
 }
 
 // Test a create intent request without customer

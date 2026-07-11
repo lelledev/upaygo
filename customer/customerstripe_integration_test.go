@@ -9,12 +9,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stripe/stripe-go/v82/customer"
-
 	appcurrency "github.com/lelledev/upaygo/currency"
 
 	appconfig "github.com/lelledev/upaygo/config"
 	appcustomer "github.com/lelledev/upaygo/customer"
+	appstripetest "github.com/lelledev/upaygo/internal/stripetest"
 )
 
 func TestMain(m *testing.M) {
@@ -60,5 +59,5 @@ func TestNewStripe(t *testing.T) {
 		t.Errorf("The new customer.email is incorrect, got: %v want %v", got.GetEmail(), email)
 	}
 
-	_, _ = customer.Del(got.GetGatewayReference(), nil)
+	appstripetest.DeleteCustomer(c.GetISO4217(), got.GetGatewayReference())
 }

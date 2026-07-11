@@ -1,11 +1,10 @@
 package appcustomer
 
 import (
+	"context"
 	"errors"
 
 	apperror "github.com/lelledev/upaygo/error"
-
-	"github.com/stripe/stripe-go/v82/customer"
 
 	appconfig "github.com/lelledev/upaygo/config"
 	appcurrency "github.com/lelledev/upaygo/currency"
@@ -18,17 +17,15 @@ func NewStripe(email string, ac appcurrency.Currency) (Customer, error) {
 		return nil, errors.New("impossible to create a Stripe customer without required parameters")
 	}
 
-	sck, e := appconfig.GetStripeAPIConfigByCurrency(ac.GetISO4217())
+	sc, e := appconfig.GetStripeClientByCurrency(ac.GetISO4217())
 	if e != nil {
 		return nil, e
 	}
 
-	stripe.Key = sck.GetSK()
-
-	params := &stripe.CustomerParams{
+	params := &stripe.CustomerCreateParams{
 		Email: new(email),
 	}
-	cus, e := customer.New(params)
+	cus, e := sc.V1Customers.Create(context.Background(), params)
 	if e != nil {
 		m, es := apperror.GetStripeErrorMessage(e)
 		if es == nil {

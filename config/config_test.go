@@ -110,6 +110,50 @@ func TestLowercaseCurrencyStripeAPIConfig(t *testing.T) {
 	}
 }
 
+func TestStripeClientByCurrency(t *testing.T) {
+	e := appconfig.ImportConfig(strings.NewReader(confStripeWithDefault))
+	if e != nil {
+		t.Errorf("error during the config import: %v", e)
+	}
+
+	sc, e := appconfig.GetStripeClientByCurrency("EUR")
+	if e != nil {
+		t.Errorf("error during the creation of the Stripe client for EUR currency: %v", e)
+	}
+
+	if sc == nil {
+		t.Error("the Stripe client for EUR currency is nil")
+	}
+}
+
+func TestDefaultStripeClientByCurrency(t *testing.T) {
+	e := appconfig.ImportConfig(strings.NewReader(confStripeWithDefault))
+	if e != nil {
+		t.Errorf("error during the config import: %v", e)
+	}
+
+	sc, e := appconfig.GetStripeClientByCurrency("NOT_FOUND_CURRENCY")
+	if e != nil {
+		t.Errorf("error during the creation of the Stripe client for an inexistent currency: %v", e)
+	}
+
+	if sc == nil {
+		t.Error("the Stripe client for an inexistent currency does not fall back to the default keys")
+	}
+}
+
+func TestWithoutDefaultStripeClientByCurrency(t *testing.T) {
+	e := appconfig.ImportConfig(strings.NewReader(confStripeWithoutDefault))
+	if e != nil {
+		t.Errorf("error during the config import: %v", e)
+	}
+
+	_, e = appconfig.GetStripeClientByCurrency("NOT_FOUND_CURRENCY")
+	if e == nil {
+		t.Error("creating a Stripe client without default API keys must return an error")
+	}
+}
+
 func TestServerConfig(t *testing.T) {
 	e := appconfig.ImportConfig(strings.NewReader(confServer))
 	if e != nil {

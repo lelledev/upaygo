@@ -11,10 +11,10 @@ import (
 
 	appconfig "github.com/lelledev/upaygo/config"
 	appcurrency "github.com/lelledev/upaygo/currency"
+	appstripetest "github.com/lelledev/upaygo/internal/stripetest"
 	apppaymentintentcancel "github.com/lelledev/upaygo/payment/intent/cancel"
 
 	"github.com/stripe/stripe-go/v82"
-	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 func TestMain(m *testing.M) {
@@ -46,7 +46,7 @@ func TestMain(m *testing.M) {
 func TestCancel(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
-	pip := &stripe.PaymentIntentParams{
+	pip := &stripe.PaymentIntentCreateParams{
 		Amount:             new(am),
 		Currency:           new(cur.GetISO4217()),
 		ConfirmationMethod: new("automatic"),
@@ -58,10 +58,7 @@ func TestCancel(t *testing.T) {
 		PaymentMethodTypes: []*string{new("card")},
 	}
 
-	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
-	stripe.Key = sck.GetSK()
-
-	intent, e := paymentintent.New(pip)
+	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
 		t.Errorf("impossible to create a new payment intent for testing: %v", e)
 	}
@@ -79,7 +76,7 @@ func TestCancel(t *testing.T) {
 func TestCancelWithSCACard(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
-	pip := &stripe.PaymentIntentParams{
+	pip := &stripe.PaymentIntentCreateParams{
 		Amount:             new(am),
 		Currency:           new(cur.GetISO4217()),
 		ConfirmationMethod: new("automatic"),
@@ -91,10 +88,7 @@ func TestCancelWithSCACard(t *testing.T) {
 		PaymentMethodTypes: []*string{new("card")},
 	}
 
-	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
-	stripe.Key = sck.GetSK()
-
-	intent, e := paymentintent.New(pip)
+	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
 		t.Errorf("impossible to create a new payment intent for testing: %v", e)
 	}
@@ -112,7 +106,7 @@ func TestCancelWithSCACard(t *testing.T) {
 func TestCancelNonConfirmedIntent(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
-	pip := &stripe.PaymentIntentParams{
+	pip := &stripe.PaymentIntentCreateParams{
 		Amount:             new(am),
 		Currency:           new(cur.GetISO4217()),
 		ConfirmationMethod: new("manual"),
@@ -124,10 +118,7 @@ func TestCancelNonConfirmedIntent(t *testing.T) {
 		PaymentMethodTypes: []*string{new("card")},
 	}
 
-	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
-	stripe.Key = sck.GetSK()
-
-	intent, e := paymentintent.New(pip)
+	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
 		t.Errorf("impossible to create a new payment intent for testing: %v", e)
 	}
