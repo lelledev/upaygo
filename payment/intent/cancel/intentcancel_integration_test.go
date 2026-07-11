@@ -60,18 +60,17 @@ func TestCancel(t *testing.T) {
 
 	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
 	if e != nil {
-		t.Errorf("impossible to create Stripe client: %v", e)
-		return
+		t.Fatalf("impossible to create Stripe client: %v", e)
 	}
 
 	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
 
 	appintent, e := apppaymentintentcancel.Cancel(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to cancel %v payment intent: %v", intent.ID, e)
+		t.Fatalf("impossible to cancel %v payment intent: %v", intent.ID, e)
 	}
 
 	if !appintent.IsCanceled() {
@@ -96,18 +95,17 @@ func TestCancelWithSCACard(t *testing.T) {
 
 	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
 	if e != nil {
-		t.Errorf("impossible to create Stripe client: %v", e)
-		return
+		t.Fatalf("impossible to create Stripe client: %v", e)
 	}
 
 	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
 
 	appintent, e := apppaymentintentcancel.Cancel(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to cancel %v payment intent: %v", intent.ID, e)
+		t.Fatalf("impossible to cancel %v payment intent: %v", intent.ID, e)
 	}
 
 	if !appintent.IsCanceled() {
@@ -132,18 +130,17 @@ func TestCancelNonConfirmedIntent(t *testing.T) {
 
 	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
 	if e != nil {
-		t.Errorf("impossible to create Stripe client: %v", e)
-		return
+		t.Fatalf("impossible to create Stripe client: %v", e)
 	}
 
 	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
 
 	appintent, e := apppaymentintentcancel.Cancel(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to cancel %v payment intent: %v", intent.ID, e)
+		t.Fatalf("impossible to cancel %v payment intent: %v", intent.ID, e)
 	}
 
 	if !appintent.IsCanceled() {

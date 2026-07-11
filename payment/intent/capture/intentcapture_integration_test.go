@@ -60,25 +60,30 @@ func TestCapture(t *testing.T) {
 
 	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
 	if e != nil {
-		t.Errorf("impossible to create Stripe client: %v", e)
-		return
+		t.Fatalf("impossible to create Stripe client: %v", e)
 	}
 
 	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
+
+	// Succeeded PaymentIntents cannot be cancelled; no teardown cancel after capture.
 
 	appintent, e := apppaymentintentcapture.Capture(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to capture %v payment intent: %v", intent.ID, e)
+		// Capture failed — intent may still be cancelable (e.g. requires_capture).
+		t.Cleanup(func() {
+			if _, err := sc.V1PaymentIntents.Cancel(context.Background(), intent.ID, nil); err != nil {
+				t.Errorf("cleanup cancel payment intent %s: %v", intent.ID, err)
+			}
+		})
+		t.Fatalf("impossible to capture %v payment intent: %v", intent.ID, e)
 	}
 
 	if !appintent.IsSucceeded() {
 		t.Error("intent capture is incorrect, got an intent that is not succeeded")
 	}
-
-	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), appintent.GetGatewayReference(), nil)
 }
 
 func TestCaptureWithSCACard(t *testing.T) {
@@ -98,21 +103,24 @@ func TestCaptureWithSCACard(t *testing.T) {
 
 	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
 	if e != nil {
-		t.Errorf("impossible to create Stripe client: %v", e)
-		return
+		t.Fatalf("impossible to create Stripe client: %v", e)
 	}
 
 	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
+
+	t.Cleanup(func() {
+		if _, err := sc.V1PaymentIntents.Cancel(context.Background(), intent.ID, nil); err != nil {
+			t.Errorf("cleanup cancel payment intent %s: %v", intent.ID, err)
+		}
+	})
 
 	_, e = apppaymentintentcapture.Capture(intent.ID, cur)
 	if e == nil {
 		t.Errorf("intent %v should not be captured as it should have status requires_action", intent.ID)
 	}
-
-	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), intent.ID, nil)
 }
 
 func TestCaptureWithoutID(t *testing.T) {

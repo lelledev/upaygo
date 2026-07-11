@@ -50,6 +50,7 @@ func TestConfirm(t *testing.T) {
 		Amount:             new(am),
 		Currency:           new(cur.GetISO4217()),
 		ConfirmationMethod: new("manual"),
+		CaptureMethod:      new("manual"),
 		PaymentMethod:      new("pm_card_visa"),
 		// payment_method_types is compatible with confirmation_method;
 		// automatic_payment_methods is not (Stripe rejects both together).
@@ -58,25 +59,28 @@ func TestConfirm(t *testing.T) {
 
 	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
 	if e != nil {
-		t.Errorf("impossible to create Stripe client: %v", e)
-		return
+		t.Fatalf("impossible to create Stripe client: %v", e)
 	}
 
 	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
+
+	t.Cleanup(func() {
+		if _, err := sc.V1PaymentIntents.Cancel(context.Background(), intent.ID, nil); err != nil {
+			t.Errorf("cleanup cancel payment intent %s: %v", intent.ID, err)
+		}
+	})
 
 	appintent, e := apppaymentintentconfirm.Confirm(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to confirm %v payment intent: %v", intent.ID, e)
+		t.Fatalf("impossible to confirm %v payment intent: %v", intent.ID, e)
 	}
 
 	if appintent.RequiresConfirmation() {
 		t.Error("intent confirmation is incorrect, got an intent that requires confirmation")
 	}
-
-	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), appintent.GetGatewayReference(), nil)
 }
 
 func TestConfirmWithoutID(t *testing.T) {

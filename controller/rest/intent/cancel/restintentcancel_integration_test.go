@@ -81,23 +81,25 @@ func createTestIntent() (string, error) {
 
 	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
 	if e != nil {
-		return "", fmt.Errorf("impossible to create Stripe client: %v", e)
+		return "", fmt.Errorf("create Stripe client: %w", e)
 	}
 
 	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
-		return "", fmt.Errorf("impossible to create a new payment intent for testing: %v", e)
+		return "", fmt.Errorf("create test payment intent: %w", e)
 	}
 
-	return intent.ID, e
+	return intent.ID, nil
 }
 
 // Test a create intent request
 func Test(t *testing.T) {
 	intentID, e := createTestIntent()
 	if e != nil {
-		t.Error(e.Error())
+		t.Fatal(e)
 	}
+
+	// Handler under test cancels the intent; no teardown cancel (already canceled).
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "http://example.com", strings.NewReader("currency=EUR"))
@@ -109,14 +111,14 @@ func Test(t *testing.T) {
 	res := w.Result()
 	resBody, e := io.ReadAll(res.Body)
 	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
+		t.Fatalf(errorRestCreateIntent, e)
 	}
 	defer res.Body.Close()
 
 	var resI responseIntent
 	e = json.Unmarshal(resBody, &resI)
 	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
+		t.Fatalf(errorRestCreateIntent, e)
 	}
 
 	if resI.IntentGatewayReference == "" {
@@ -126,11 +128,4 @@ func Test(t *testing.T) {
 	if resI.Status.R != "canceled" {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the status 'canceled'")
 	}
-
-	sc, e := appconfig.ClientForCurrency("EUR")
-	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
-		return
-	}
-	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), intentID, nil)
 }

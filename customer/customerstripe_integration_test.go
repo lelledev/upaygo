@@ -48,21 +48,25 @@ func TestNewStripe(t *testing.T) {
 
 	got, e := appcustomer.NewStripe(email, c)
 	if e != nil {
-		t.Errorf("error during the appcustomer creation with Stripe: %v", e)
+		t.Fatalf("error during the appcustomer creation with Stripe: %v", e)
 	}
 
-	if got.GetGatewayReference() == "" {
-		t.Errorf("The new customer.gateway_reference is empty, got: %v", got.GetGatewayReference())
+	sc, e := appconfig.ClientForCurrency(c.GetISO4217())
+	if e != nil {
+		t.Fatalf("impossible to create Stripe client for cleanup: %v", e)
+	}
+	customerID := got.GetGatewayReference()
+	t.Cleanup(func() {
+		if _, err := sc.V1Customers.Delete(context.Background(), customerID, nil); err != nil {
+			t.Errorf("cleanup delete customer %s: %v", customerID, err)
+		}
+	})
+
+	if customerID == "" {
+		t.Errorf("The new customer.gateway_reference is empty, got: %v", customerID)
 	}
 
 	if got.GetEmail() != email {
 		t.Errorf("The new customer.email is incorrect, got: %v want %v", got.GetEmail(), email)
 	}
-
-	sc, e := appconfig.ClientForCurrency(c.GetISO4217())
-	if e != nil {
-		t.Errorf("impossible to create Stripe client for cleanup: %v", e)
-		return
-	}
-	_, _ = sc.V1Customers.Delete(context.Background(), got.GetGatewayReference(), nil)
 }

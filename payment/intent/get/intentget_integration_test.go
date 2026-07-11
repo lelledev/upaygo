@@ -55,25 +55,28 @@ func TestGet(t *testing.T) {
 
 	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
 	if e != nil {
-		t.Errorf("impossible to create Stripe client: %v", e)
-		return
+		t.Fatalf("impossible to create Stripe client: %v", e)
 	}
 
 	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
+
+	t.Cleanup(func() {
+		if _, err := sc.V1PaymentIntents.Cancel(context.Background(), intent.ID, nil); err != nil {
+			t.Errorf("cleanup cancel payment intent %s: %v", intent.ID, err)
+		}
+	})
 
 	appintent, e := apppaymentintentget.Get(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to get %v payment intent: %v", intent.ID, e)
+		t.Fatalf("impossible to get %v payment intent: %v", intent.ID, e)
 	}
 
 	if appintent.GetGatewayReference() != intent.ID {
 		t.Errorf("intent get is incorrect, got an intent with different ID. Got: %v want: %v", appintent.GetGatewayReference(), intent.ID)
 	}
-
-	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), appintent.GetGatewayReference(), nil)
 }
 
 func TestGetWithoutID(t *testing.T) {

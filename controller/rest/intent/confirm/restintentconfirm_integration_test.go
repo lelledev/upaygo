@@ -63,7 +63,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func createTestIntent() (string, error) {
+func createTestIntent() (string, *stripe.Client, error) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(4567)
 	pip := &stripe.PaymentIntentCreateParams{
@@ -80,23 +80,29 @@ func createTestIntent() (string, error) {
 
 	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
 	if e != nil {
-		return "", fmt.Errorf("impossible to create Stripe client: %v", e)
+		return "", nil, fmt.Errorf("create Stripe client: %w", e)
 	}
 
 	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
-		return "", fmt.Errorf("impossible to create a new payment intent for testing: %v", e)
+		return "", nil, fmt.Errorf("create test payment intent: %w", e)
 	}
 
-	return intent.ID, e
+	return intent.ID, sc, nil
 }
 
 // Test a create intent request
 func Test(t *testing.T) {
-	intentID, e := createTestIntent()
+	intentID, sc, e := createTestIntent()
 	if e != nil {
-		t.Error(e.Error())
+		t.Fatal(e)
 	}
+
+	t.Cleanup(func() {
+		if _, err := sc.V1PaymentIntents.Cancel(context.Background(), intentID, nil); err != nil {
+			t.Errorf("cleanup cancel payment intent %s: %v", intentID, err)
+		}
+	})
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "http://example.com", strings.NewReader("currency=EUR"))
@@ -108,14 +114,14 @@ func Test(t *testing.T) {
 	res := w.Result()
 	resBody, e := io.ReadAll(res.Body)
 	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
+		t.Fatalf(errorRestCreateIntent, e)
 	}
 	defer res.Body.Close()
 
 	var resI responseIntent
 	e = json.Unmarshal(resBody, &resI)
 	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
+		t.Fatalf(errorRestCreateIntent, e)
 	}
 
 	if resI.IntentGatewayReference == "" {
@@ -125,11 +131,4 @@ func Test(t *testing.T) {
 	if resI.Status.R != "requires_capture" {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the status as 'requires_capture'")
 	}
-
-	sc, e := appconfig.ClientForCurrency("EUR")
-	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
-		return
-	}
-	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), intentID, nil)
 }

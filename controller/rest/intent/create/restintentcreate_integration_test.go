@@ -67,8 +67,19 @@ func Test(t *testing.T) {
 	c, _ := appcurrency.New("EUR")
 	cus, e := appcustomer.NewStripe("email@email.com", c)
 	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
+		t.Fatalf(errorRestCreateIntent, e)
 	}
+
+	sc, e := appconfig.ClientForCurrency(c.GetISO4217())
+	if e != nil {
+		t.Fatalf(errorRestCreateIntent, e)
+	}
+	customerID := cus.GetGatewayReference()
+	t.Cleanup(func() {
+		if _, err := sc.V1Customers.Delete(context.Background(), customerID, nil); err != nil {
+			t.Errorf("cleanup delete customer %s: %v", customerID, err)
+		}
+	})
 
 	a, ps, w := 7777, "pm_card_visa", httptest.NewRecorder()
 	p := fmt.Sprintf("currency=%v&amount=%v&payment_source=%v&customer_reference=%v", c.GetISO4217(), a, ps, cus.GetGatewayReference())
@@ -80,13 +91,13 @@ func Test(t *testing.T) {
 	res := w.Result()
 	resBody, e := io.ReadAll(res.Body)
 	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
+		t.Fatalf(errorRestCreateIntent, e)
 	}
 	defer res.Body.Close()
 
 	e = json.Unmarshal(resBody, &resI)
 	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
+		t.Fatalf(errorRestCreateIntent, e)
 	}
 
 	if resI.IntentGatewayReference == "" {
@@ -96,13 +107,6 @@ func Test(t *testing.T) {
 	if resI.Customer.R == "" {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the customer reference")
 	}
-
-	sc, e := appconfig.ClientForCurrency(c.GetISO4217())
-	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
-		return
-	}
-	_, _ = sc.V1Customers.Delete(context.Background(), cus.GetGatewayReference(), nil)
 }
 
 // Test a create intent request without customer
@@ -121,12 +125,12 @@ func TestWithoutCustomer(t *testing.T) {
 	resBody, e := io.ReadAll(res.Body)
 	_ = res.Body.Close()
 	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
+		t.Fatalf(errorRestCreateIntent, e)
 	}
 
 	e = json.Unmarshal(resBody, &resI)
 	if e != nil {
-		t.Errorf(errorRestCreateIntent, e)
+		t.Fatalf(errorRestCreateIntent, e)
 	}
 
 	if resI.IntentGatewayReference == "" {
