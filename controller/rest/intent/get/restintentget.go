@@ -2,7 +2,6 @@ package apprestintentget
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -18,12 +17,6 @@ const (
 	Method = http.MethodGet
 
 	responseTye = "application/json"
-
-	errorParamPathMissing  = "missing URL in-path mandatory parameters to get the payment intent"
-	errorParamQueryMissing = "error during the query parsing: '%v'"
-	errorAmountCreation    = "error during the intent amount creation: '%v'"
-	errorIntentGet         = "error during the intent getter: '%v'"
-	errorIntentEncoding    = "error during the intent encoding: '%v'"
 )
 
 // @Summary Get an intent
@@ -43,38 +36,18 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	ID, cur, e := getParams(r)
 	if e != nil {
-		w.WriteHeader(http.StatusBadRequest)
-
-		e := apperror.RESTError{
-			M: e.Error(),
-		}
-		_ = json.NewEncoder(w).Encode(e)
-
+		apperror.WriteJSON(w, e)
 		return
 	}
 
 	appintent, e := apppaymentintentget.Get(ID, cur)
 	if e != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		e := apperror.RESTError{
-			M: fmt.Sprintf(errorIntentGet, e),
-		}
-		_ = json.NewEncoder(w).Encode(e)
-
+		apperror.WriteJSON(w, e)
 		return
 	}
 
-	e = json.NewEncoder(w).Encode(appintent)
-	if e != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-
-		e := apperror.RESTError{
-			M: fmt.Sprintf(errorIntentEncoding, e),
-		}
-		_ = json.NewEncoder(w).Encode(e)
-
-		return
+	if e = json.NewEncoder(w).Encode(appintent); e != nil {
+		apperror.WriteJSON(w, fmt.Errorf("encode payment intent response: %w", e))
 	}
 }
 
@@ -85,12 +58,12 @@ func getParams(r *http.Request) (string, appcurrency.Currency, error) {
 
 	cursym := r.URL.Query().Get("currency")
 	if cursym == "" {
-		return "", nil, errors.New(errorParamQueryMissing)
+		return "", nil, apperror.Invalid("error during the query parsing: missing currency")
 	}
 
 	cur, e := appcurrency.New(cursym)
 	if e != nil {
-		return "", nil, fmt.Errorf(errorAmountCreation, e.Error())
+		return "", nil, apperror.Invalid(fmt.Sprintf("error during the intent amount creation: %v", e))
 	}
 
 	return ID, cur, nil

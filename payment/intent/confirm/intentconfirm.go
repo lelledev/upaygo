@@ -2,7 +2,6 @@ package apppaymentintentconfirm
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	appconfig "github.com/lelledev/upaygo/config"
@@ -14,7 +13,7 @@ import (
 // Confirm gets the intent id from c Stripe account and confirm it
 func Confirm(id string, c appcurrency.Currency) (apppaymentintent.Intent, error) {
 	if id == "" || c == nil {
-		return nil, errors.New("impossible to confirm the payment intent without required parameters")
+		return nil, apperror.Invalid("impossible to confirm the payment intent without required parameters")
 	}
 
 	sc, e := appconfig.GetStripeClientByCurrency(c.GetISO4217())
@@ -24,12 +23,7 @@ func Confirm(id string, c appcurrency.Currency) (apppaymentintent.Intent, error)
 
 	intent, e := sc.V1PaymentIntents.Confirm(context.Background(), id, nil)
 	if e != nil {
-		m, es := apperror.GetStripeErrorMessage(e)
-		if es == nil {
-			return nil, errors.New(m)
-		}
-
-		return nil, e
+		return nil, fmt.Errorf("confirm payment intent %s: %w", id, e)
 	}
 
 	return apppaymentintent.FromStripeToAppIntent(*intent), nil

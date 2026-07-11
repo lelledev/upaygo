@@ -12,13 +12,13 @@ var s config
 func ImportConfig(r io.Reader) error {
 	b, e := io.ReadAll(r)
 	if e != nil {
-		return fmt.Errorf("impossible to read configuration: %v", e)
+		return fmt.Errorf("impossible to read configuration: %w", e)
 	}
 
 	s = config{} // Reset existing configs
 	e = json.Unmarshal(b, &s)
 	if e != nil {
-		return fmt.Errorf("impossible to unmarshal configuration: %v", e)
+		return fmt.Errorf("impossible to unmarshal configuration: %w", e)
 	}
 
 	return nil
