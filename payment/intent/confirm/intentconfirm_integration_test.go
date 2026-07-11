@@ -58,19 +58,20 @@ func TestConfirm(t *testing.T) {
 
 	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
+	t.Cleanup(func() {
+		appstripetest.CancelIntent(cur.GetISO4217(), intent.ID)
+	})
 
 	appintent, e := apppaymentintentconfirm.Confirm(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to confirm %v payment intent: %v", intent.ID, e)
+		t.Fatalf("impossible to confirm %v payment intent: %v", intent.ID, e)
 	}
 
 	if appintent.RequiresConfirmation() {
 		t.Error("intent confirmation is incorrect, got an intent that requires confirmation")
 	}
-
-	appstripetest.CancelIntent(cur.GetISO4217(), appintent.GetGatewayReference())
 }
 
 func TestConfirmWithoutID(t *testing.T) {

@@ -81,7 +81,7 @@ func createTestIntent() (string, error) {
 
 	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
-		return "", fmt.Errorf("impossible to create a new payment intent for testing: %v", e)
+		return "", fmt.Errorf("impossible to create a new payment intent for testing: %w", e)
 	}
 
 	return intent.ID, e
@@ -91,8 +91,11 @@ func createTestIntent() (string, error) {
 func Test(t *testing.T) {
 	intentID, e := createTestIntent()
 	if e != nil {
-		t.Error(e.Error())
+		t.Fatal(e)
 	}
+	t.Cleanup(func() {
+		appstripetest.CancelIntent("EUR", intentID)
+	})
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "http://example.com", strings.NewReader("currency=EUR"))
@@ -121,6 +124,4 @@ func Test(t *testing.T) {
 	if resI.Status.R != "succeeded" {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the status 'succeeded'")
 	}
-
-	appstripetest.CancelIntent("EUR", intentID)
 }

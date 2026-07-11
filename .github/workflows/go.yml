@@ -20,7 +20,7 @@ jobs:
 
       - name: Stripe legacy API guard
         run: |
-          if grep -RnE --include='*.go' --exclude-dir=vendor 'stripe\.Key|stripe-go/v82/(paymentintent|customer)\b' .; then
+          if grep -RnE --include='*.go' --exclude-dir=vendor 'stripe[A-Za-z0-9_]*\.Key\b|stripe-go/v82/(paymentintent|customer)\b' .; then
             echo "Legacy stripe-go API usage found: use stripe.Client via appconfig.GetStripeClientByCurrency"
             exit 1
           fi

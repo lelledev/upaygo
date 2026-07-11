@@ -3,6 +3,7 @@ package appcustomer
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	apperror "github.com/lelledev/upaygo/error"
 
@@ -19,7 +20,7 @@ func NewStripe(email string, ac appcurrency.Currency) (Customer, error) {
 
 	sc, e := appconfig.GetStripeClientByCurrency(ac.GetISO4217())
 	if e != nil {
-		return nil, e
+		return nil, fmt.Errorf("impossible to get the Stripe client to create the customer: %w", e)
 	}
 
 	params := &stripe.CustomerCreateParams{

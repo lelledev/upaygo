@@ -60,19 +60,20 @@ func TestCapture(t *testing.T) {
 
 	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
+	t.Cleanup(func() {
+		appstripetest.CancelIntent(cur.GetISO4217(), intent.ID)
+	})
 
 	appintent, e := apppaymentintentcapture.Capture(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to capture %v payment intent: %v", intent.ID, e)
+		t.Fatalf("impossible to capture %v payment intent: %v", intent.ID, e)
 	}
 
 	if !appintent.IsSucceeded() {
 		t.Error("intent capture is incorrect, got an intent that is not succeeded")
 	}
-
-	appstripetest.CancelIntent(cur.GetISO4217(), appintent.GetGatewayReference())
 }
 
 func TestCaptureWithSCACard(t *testing.T) {
@@ -92,15 +93,16 @@ func TestCaptureWithSCACard(t *testing.T) {
 
 	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
+	t.Cleanup(func() {
+		appstripetest.CancelIntent(cur.GetISO4217(), intent.ID)
+	})
 
 	_, e = apppaymentintentcapture.Capture(intent.ID, cur)
 	if e == nil {
 		t.Errorf("intent %v should not be captured as it should have status requires_action", intent.ID)
 	}
-
-	appstripetest.CancelIntent(cur.GetISO4217(), intent.ID)
 }
 
 func TestCaptureWithoutID(t *testing.T) {

@@ -60,12 +60,15 @@ func TestCancel(t *testing.T) {
 
 	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
+	t.Cleanup(func() {
+		appstripetest.CancelIntent(cur.GetISO4217(), intent.ID)
+	})
 
 	appintent, e := apppaymentintentcancel.Cancel(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to cancel %v payment intent: %v", intent.ID, e)
+		t.Fatalf("impossible to cancel %v payment intent: %v", intent.ID, e)
 	}
 
 	if !appintent.IsCanceled() {
@@ -90,12 +93,15 @@ func TestCancelWithSCACard(t *testing.T) {
 
 	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
+	t.Cleanup(func() {
+		appstripetest.CancelIntent(cur.GetISO4217(), intent.ID)
+	})
 
 	appintent, e := apppaymentintentcancel.Cancel(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to cancel %v payment intent: %v", intent.ID, e)
+		t.Fatalf("impossible to cancel %v payment intent: %v", intent.ID, e)
 	}
 
 	if !appintent.IsCanceled() {
@@ -120,12 +126,15 @@ func TestCancelNonConfirmedIntent(t *testing.T) {
 
 	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
+	t.Cleanup(func() {
+		appstripetest.CancelIntent(cur.GetISO4217(), intent.ID)
+	})
 
 	appintent, e := apppaymentintentcancel.Cancel(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to cancel %v payment intent: %v", intent.ID, e)
+		t.Fatalf("impossible to cancel %v payment intent: %v", intent.ID, e)
 	}
 
 	if !appintent.IsCanceled() {

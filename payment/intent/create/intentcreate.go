@@ -3,6 +3,7 @@ package apppaymentintentcreate
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	appamount "github.com/lelledev/upaygo/amount"
 	appconfig "github.com/lelledev/upaygo/config"
@@ -22,7 +23,7 @@ func Create(a appamount.Amount, p apppaymentsource.Source, c appcustomer.Custome
 
 	sc, e := appconfig.GetStripeClientByCurrency(a.GetCurrency().GetISO4217())
 	if e != nil {
-		return nil, e
+		return nil, fmt.Errorf("impossible to get the Stripe client to create the payment intent: %w", e)
 	}
 
 	ic := &stripe.PaymentIntentCreateParams{

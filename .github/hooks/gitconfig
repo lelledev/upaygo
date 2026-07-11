@@ -17,7 +17,7 @@
 
 [hook "stripe-legacy-api"]
 	event = pre-commit
-	command = "bash -c 'matches=$(grep -RnE --include=\"*.go\" --exclude-dir=vendor \"stripe\\.Key|stripe-go/v82/(paymentintent|customer)\\b\" . || true); test -z \"$matches\" || { echo \"Legacy stripe-go API usage found, use stripe.Client via appconfig.GetStripeClientByCurrency:\"; echo \"$matches\"; exit 1; }'"
+	command = "bash -c 'matches=$(grep -RnE --include=\"*.go\" --exclude-dir=vendor \"stripe[A-Za-z0-9_]*\\.Key\\b|stripe-go/v82/(paymentintent|customer)\\b\" . || true); test -z \"$matches\" || { echo \"Legacy stripe-go API usage found, use stripe.Client via appconfig.GetStripeClientByCurrency:\"; echo \"$matches\"; exit 1; }'"
 
 [hook "gofmt"]
 	event = pre-commit

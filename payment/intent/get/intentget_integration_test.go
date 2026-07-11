@@ -55,19 +55,20 @@ func TestGet(t *testing.T) {
 
 	intent, e := appstripetest.NewIntent(cur.GetISO4217(), pip)
 	if e != nil {
-		t.Errorf("impossible to create a new payment intent for testing: %v", e)
+		t.Fatalf("impossible to create a new payment intent for testing: %v", e)
 	}
+	t.Cleanup(func() {
+		appstripetest.CancelIntent(cur.GetISO4217(), intent.ID)
+	})
 
 	appintent, e := apppaymentintentget.Get(intent.ID, cur)
 	if e != nil {
-		t.Errorf("impossible to get %v payment intent: %v", intent.ID, e)
+		t.Fatalf("impossible to get %v payment intent: %v", intent.ID, e)
 	}
 
 	if appintent.GetGatewayReference() != intent.ID {
 		t.Errorf("intent get is incorrect, got an intent with different ID. Got: %v want: %v", appintent.GetGatewayReference(), intent.ID)
 	}
-
-	appstripetest.CancelIntent(cur.GetISO4217(), appintent.GetGatewayReference())
 }
 
 func TestGetWithoutID(t *testing.T) {

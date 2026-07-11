@@ -48,8 +48,11 @@ func TestNewStripe(t *testing.T) {
 
 	got, e := appcustomer.NewStripe(email, c)
 	if e != nil {
-		t.Errorf("error during the appcustomer creation with Stripe: %v", e)
+		t.Fatalf("error during the appcustomer creation with Stripe: %v", e)
 	}
+	t.Cleanup(func() {
+		appstripetest.DeleteCustomer(c.GetISO4217(), got.GetGatewayReference())
+	})
 
 	if got.GetGatewayReference() == "" {
 		t.Errorf("The new customer.gateway_reference is empty, got: %v", got.GetGatewayReference())
@@ -58,6 +61,4 @@ func TestNewStripe(t *testing.T) {
 	if got.GetEmail() != email {
 		t.Errorf("The new customer.email is incorrect, got: %v want %v", got.GetEmail(), email)
 	}
-
-	appstripetest.DeleteCustomer(c.GetISO4217(), got.GetGatewayReference())
 }

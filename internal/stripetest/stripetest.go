@@ -6,6 +6,7 @@ package appstripetest
 
 import (
 	"context"
+	"fmt"
 
 	appconfig "github.com/lelledev/upaygo/config"
 
@@ -19,7 +20,12 @@ func NewIntent(c string, params *stripe.PaymentIntentCreateParams) (*stripe.Paym
 		return nil, e
 	}
 
-	return sc.V1PaymentIntents.Create(context.Background(), params)
+	intent, e := sc.V1PaymentIntents.Create(context.Background(), params)
+	if e != nil {
+		return nil, fmt.Errorf("impossible to create the payment intent fixture for %v currency: %w", c, e)
+	}
+
+	return intent, nil
 }
 
 // CancelIntent cancels the id payment intent on the c currency Stripe account,

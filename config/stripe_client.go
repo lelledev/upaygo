@@ -1,6 +1,8 @@
 package appconfig
 
 import (
+	"fmt"
+
 	"github.com/stripe/stripe-go/v82"
 )
 
@@ -11,7 +13,7 @@ import (
 func GetStripeClientByCurrency(c string) (*stripe.Client, error) {
 	sck, e := GetStripeAPIConfigByCurrency(c)
 	if e != nil {
-		return nil, e
+		return nil, fmt.Errorf("impossible to get the Stripe API configuration for %v currency: %w", c, e)
 	}
 
 	return stripe.NewClient(sck.GetSK()), nil
