@@ -4,6 +4,7 @@
 package apppaymentintentcreate_test
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -15,9 +16,6 @@ import (
 	appcustomer "github.com/lelledev/upaygo/customer"
 	apppaymentintentcreate "github.com/lelledev/upaygo/payment/intent/create"
 	apppaymentsource "github.com/lelledev/upaygo/payment/source"
-
-	"github.com/stripe/stripe-go/v82/customer"
-	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 func TestMain(m *testing.M) {
@@ -106,8 +104,13 @@ func TestCreate(t *testing.T) {
 		t.Error("a new intent should require confirmation")
 	}
 
-	_, _ = paymentintent.Cancel(pi.GetGatewayReference(), nil)
-	_, _ = customer.Del(cus.GetGatewayReference(), nil)
+	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
+	if e != nil {
+		t.Errorf("impossible to create Stripe client for cleanup: %v", e)
+		return
+	}
+	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), pi.GetGatewayReference(), nil)
+	_, _ = sc.V1Customers.Delete(context.Background(), cus.GetGatewayReference(), nil)
 }
 
 func TestCreateWithoutCustomer(t *testing.T) {
@@ -125,7 +128,12 @@ func TestCreateWithoutCustomer(t *testing.T) {
 		t.Errorf("intent customer should be blank, got: %v", pi.GetCustomer())
 	}
 
-	_, _ = paymentintent.Cancel(pi.GetGatewayReference(), nil)
+	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
+	if e != nil {
+		t.Errorf("impossible to create Stripe client for cleanup: %v", e)
+		return
+	}
+	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), pi.GetGatewayReference(), nil)
 }
 
 func TestCreateWithoutAmount(t *testing.T) {

@@ -4,6 +4,7 @@
 package apppaymentintentget_test
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -14,7 +15,6 @@ import (
 	apppaymentintentget "github.com/lelledev/upaygo/payment/intent/get"
 
 	"github.com/stripe/stripe-go/v82"
-	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 func TestMain(m *testing.M) {
@@ -46,17 +46,20 @@ func TestMain(m *testing.M) {
 func TestGet(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
-	pip := &stripe.PaymentIntentParams{
+	pip := &stripe.PaymentIntentCreateParams{
 		Amount:   new(am),
 		Currency: new(cur.GetISO4217()),
 		// Restrict to card so Dashboard redirect methods are not enabled.
 		PaymentMethodTypes: []*string{new("card")},
 	}
 
-	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
-	stripe.Key = sck.GetSK()
+	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
+	if e != nil {
+		t.Errorf("impossible to create Stripe client: %v", e)
+		return
+	}
 
-	intent, e := paymentintent.New(pip)
+	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
 		t.Errorf("impossible to create a new payment intent for testing: %v", e)
 	}
@@ -70,7 +73,7 @@ func TestGet(t *testing.T) {
 		t.Errorf("intent get is incorrect, got an intent with different ID. Got: %v want: %v", appintent.GetGatewayReference(), intent.ID)
 	}
 
-	_, _ = paymentintent.Cancel(appintent.GetGatewayReference(), nil)
+	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), appintent.GetGatewayReference(), nil)
 }
 
 func TestGetWithoutID(t *testing.T) {

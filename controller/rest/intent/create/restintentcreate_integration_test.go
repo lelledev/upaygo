@@ -4,6 +4,7 @@
 package apprestintentcreate_test
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -13,8 +14,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-
-	"github.com/stripe/stripe-go/v82/customer"
 
 	appconfig "github.com/lelledev/upaygo/config"
 	apprestintentcreate "github.com/lelledev/upaygo/controller/rest/intent/create"
@@ -98,7 +97,12 @@ func Test(t *testing.T) {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the customer reference")
 	}
 
-	_, _ = customer.Del(cus.GetGatewayReference(), nil)
+	sc, e := appconfig.ClientForCurrency(c.GetISO4217())
+	if e != nil {
+		t.Errorf(errorRestCreateIntent, e)
+		return
+	}
+	_, _ = sc.V1Customers.Delete(context.Background(), cus.GetGatewayReference(), nil)
 }
 
 // Test a create intent request without customer

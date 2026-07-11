@@ -134,3 +134,38 @@ func TestServerConfig(t *testing.T) {
 		t.Errorf("incorrect server config URI, got: %v want: %v", got.GetURI(), "https://localhost:8080")
 	}
 }
+
+func TestClientForCurrency(t *testing.T) {
+	e := appconfig.ImportConfig(strings.NewReader(confStripeWithDefault))
+	if e != nil {
+		t.Errorf("error during the config import: %v", e)
+	}
+
+	sc, e := appconfig.ClientForCurrency("EUR")
+	if e != nil {
+		t.Errorf("error creating Stripe client for EUR: %v", e)
+	}
+	if sc == nil {
+		t.Error("expected a non-nil Stripe client for EUR")
+	}
+
+	sc, e = appconfig.ClientForCurrency("NOT_FOUND_CURRENCY")
+	if e != nil {
+		t.Errorf("error creating Stripe client for default currency: %v", e)
+	}
+	if sc == nil {
+		t.Error("expected a non-nil Stripe client for default currency")
+	}
+}
+
+func TestClientForCurrencyWithoutDefault(t *testing.T) {
+	e := appconfig.ImportConfig(strings.NewReader(confStripeWithoutDefault))
+	if e != nil {
+		t.Errorf("error during the config import: %v", e)
+	}
+
+	_, e = appconfig.ClientForCurrency("NOT_FOUND_CURRENCY")
+	if e == nil {
+		t.Error("configuration without Stripe default API keys must return an error")
+	}
+}

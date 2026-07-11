@@ -4,6 +4,7 @@
 package apprestintentcancel_test
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -21,7 +22,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/stripe/stripe-go/v82"
-	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 const (
@@ -66,7 +66,7 @@ func TestMain(m *testing.M) {
 func createTestIntent() (string, error) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(4567)
-	pip := &stripe.PaymentIntentParams{
+	pip := &stripe.PaymentIntentCreateParams{
 		Amount:             new(am),
 		Currency:           new(cur.GetISO4217()),
 		PaymentMethod:      new("pm_card_visa"),
@@ -79,10 +79,12 @@ func createTestIntent() (string, error) {
 		PaymentMethodTypes: []*string{new("card")},
 	}
 
-	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
-	stripe.Key = sck.GetSK()
+	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
+	if e != nil {
+		return "", fmt.Errorf("impossible to create Stripe client: %v", e)
+	}
 
-	intent, e := paymentintent.New(pip)
+	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
 		return "", fmt.Errorf("impossible to create a new payment intent for testing: %v", e)
 	}
@@ -125,5 +127,10 @@ func Test(t *testing.T) {
 		t.Errorf(errorRestCreateIntent, "the body response does not have the status 'canceled'")
 	}
 
-	_, _ = paymentintent.Cancel(intentID, nil)
+	sc, e := appconfig.ClientForCurrency("EUR")
+	if e != nil {
+		t.Errorf(errorRestCreateIntent, e)
+		return
+	}
+	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), intentID, nil)
 }

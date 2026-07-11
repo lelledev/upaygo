@@ -25,6 +25,7 @@ Payment Gateway Microservice in Golang
         - Capture/Delete intent
 - No database infrastructure needed
 - Stripe API keys configuration per currency
+- Stripe access via `stripe.Client` (`appconfig.ClientForCurrency`) — no global `stripe.Key`
 
 ## Installation
 

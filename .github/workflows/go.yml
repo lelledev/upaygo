@@ -40,6 +40,18 @@ jobs:
       - name: Build
         run: go build -v .
 
+      - name: Guard - no legacy stripe resource APIs
+        run: |
+          set -e
+          if grep -R --include='*.go' -n 'stripe\.Key\s*=' . --exclude-dir=vendor; then
+            echo "stripe.Key assignment is forbidden; use appconfig.ClientForCurrency / stripe.NewClient"
+            exit 1
+          fi
+          if grep -R --include='*.go' -nE 'github.com/stripe/stripe-go/v82/(paymentintent|customer)"' . --exclude-dir=vendor; then
+            echo "legacy paymentintent/customer packages must not be imported; use stripe.Client services"
+            exit 1
+          fi
+
       - name: Tests - Unit
         run: go test ./... -failfast -tags=unit
 

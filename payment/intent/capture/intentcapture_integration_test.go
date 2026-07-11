@@ -4,6 +4,7 @@
 package apppaymentintentcapture_test
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -14,7 +15,6 @@ import (
 	apppaymentintentcapture "github.com/lelledev/upaygo/payment/intent/capture"
 
 	"github.com/stripe/stripe-go/v82"
-	"github.com/stripe/stripe-go/v82/paymentintent"
 )
 
 func TestMain(m *testing.M) {
@@ -46,7 +46,7 @@ func TestMain(m *testing.M) {
 func TestCapture(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
-	pip := &stripe.PaymentIntentParams{
+	pip := &stripe.PaymentIntentCreateParams{
 		Amount:             new(am),
 		Currency:           new(cur.GetISO4217()),
 		ConfirmationMethod: new("automatic"),
@@ -58,10 +58,13 @@ func TestCapture(t *testing.T) {
 		PaymentMethodTypes: []*string{new("card")},
 	}
 
-	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
-	stripe.Key = sck.GetSK()
+	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
+	if e != nil {
+		t.Errorf("impossible to create Stripe client: %v", e)
+		return
+	}
 
-	intent, e := paymentintent.New(pip)
+	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
 		t.Errorf("impossible to create a new payment intent for testing: %v", e)
 	}
@@ -75,13 +78,13 @@ func TestCapture(t *testing.T) {
 		t.Error("intent capture is incorrect, got an intent that is not succeeded")
 	}
 
-	_, _ = paymentintent.Cancel(appintent.GetGatewayReference(), nil)
+	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), appintent.GetGatewayReference(), nil)
 }
 
 func TestCaptureWithSCACard(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := int64(2088)
-	pip := &stripe.PaymentIntentParams{
+	pip := &stripe.PaymentIntentCreateParams{
 		Amount:             new(am),
 		Currency:           new(cur.GetISO4217()),
 		ConfirmationMethod: new("automatic"),
@@ -93,10 +96,13 @@ func TestCaptureWithSCACard(t *testing.T) {
 		PaymentMethodTypes: []*string{new("card")},
 	}
 
-	sck, _ := appconfig.GetStripeAPIConfigByCurrency(cur.GetISO4217())
-	stripe.Key = sck.GetSK()
+	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
+	if e != nil {
+		t.Errorf("impossible to create Stripe client: %v", e)
+		return
+	}
 
-	intent, e := paymentintent.New(pip)
+	intent, e := sc.V1PaymentIntents.Create(context.Background(), pip)
 	if e != nil {
 		t.Errorf("impossible to create a new payment intent for testing: %v", e)
 	}
@@ -106,7 +112,7 @@ func TestCaptureWithSCACard(t *testing.T) {
 		t.Errorf("intent %v should not be captured as it should have status requires_action", intent.ID)
 	}
 
-	_, _ = paymentintent.Cancel(intent.ID, nil)
+	_, _ = sc.V1PaymentIntents.Cancel(context.Background(), intent.ID, nil)
 }
 
 func TestCaptureWithoutID(t *testing.T) {

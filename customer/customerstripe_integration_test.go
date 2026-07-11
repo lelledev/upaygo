@@ -4,12 +4,11 @@
 package appcustomer_test
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
 	"testing"
-
-	"github.com/stripe/stripe-go/v82/customer"
 
 	appcurrency "github.com/lelledev/upaygo/currency"
 
@@ -60,5 +59,10 @@ func TestNewStripe(t *testing.T) {
 		t.Errorf("The new customer.email is incorrect, got: %v want %v", got.GetEmail(), email)
 	}
 
-	_, _ = customer.Del(got.GetGatewayReference(), nil)
+	sc, e := appconfig.ClientForCurrency(c.GetISO4217())
+	if e != nil {
+		t.Errorf("impossible to create Stripe client for cleanup: %v", e)
+		return
+	}
+	_, _ = sc.V1Customers.Delete(context.Background(), got.GetGatewayReference(), nil)
 }
