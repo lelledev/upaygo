@@ -3,7 +3,6 @@ package apppaymentintentget
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	appconfig "github.com/lelledev/upaygo/config"
 	appcurrency "github.com/lelledev/upaygo/currency"
@@ -17,10 +16,9 @@ func Get(gf string, c appcurrency.Currency) (apppaymentintent.Intent, error) {
 		return nil, errors.New("impossible to get the payment intent without required parameters")
 	}
 
-	currency := c.GetISO4217()
-	sc, e := appconfig.ClientForCurrency(currency)
+	sc, e := appconfig.ClientForCurrencyOp(c.GetISO4217(), "payment intent get")
 	if e != nil {
-		return nil, fmt.Errorf("create Stripe client for payment intent get currency %q: %w", currency, e)
+		return nil, e
 	}
 
 	intent, e := sc.V1PaymentIntents.Retrieve(context.Background(), gf, nil)

@@ -3,7 +3,6 @@ package apppaymentintentconfirm
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	appconfig "github.com/lelledev/upaygo/config"
 	appcurrency "github.com/lelledev/upaygo/currency"
@@ -17,10 +16,9 @@ func Confirm(id string, c appcurrency.Currency) (apppaymentintent.Intent, error)
 		return nil, errors.New("impossible to confirm the payment intent without required parameters")
 	}
 
-	currency := c.GetISO4217()
-	sc, e := appconfig.ClientForCurrency(currency)
+	sc, e := appconfig.ClientForCurrencyOp(c.GetISO4217(), "payment intent confirm")
 	if e != nil {
-		return nil, fmt.Errorf("create Stripe client for payment intent confirm currency %q: %w", currency, e)
+		return nil, e
 	}
 
 	intent, e := sc.V1PaymentIntents.Confirm(context.Background(), id, nil)

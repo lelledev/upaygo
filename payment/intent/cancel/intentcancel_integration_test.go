@@ -70,6 +70,12 @@ func TestCancel(t *testing.T) {
 
 	appintent, e := apppaymentintentcancel.Cancel(intent.ID, cur)
 	if e != nil {
+		// Cancel failed — still cancelable; clean up the fixture.
+		t.Cleanup(func() {
+			if _, err := sc.V1PaymentIntents.Cancel(context.Background(), intent.ID, nil); err != nil {
+				t.Errorf("cleanup cancel payment intent %s: %v", intent.ID, err)
+			}
+		})
 		t.Fatalf("impossible to cancel %v payment intent: %v", intent.ID, e)
 	}
 
@@ -105,6 +111,11 @@ func TestCancelWithSCACard(t *testing.T) {
 
 	appintent, e := apppaymentintentcancel.Cancel(intent.ID, cur)
 	if e != nil {
+		t.Cleanup(func() {
+			if _, err := sc.V1PaymentIntents.Cancel(context.Background(), intent.ID, nil); err != nil {
+				t.Errorf("cleanup cancel payment intent %s: %v", intent.ID, err)
+			}
+		})
 		t.Fatalf("impossible to cancel %v payment intent: %v", intent.ID, e)
 	}
 
@@ -140,6 +151,11 @@ func TestCancelNonConfirmedIntent(t *testing.T) {
 
 	appintent, e := apppaymentintentcancel.Cancel(intent.ID, cur)
 	if e != nil {
+		t.Cleanup(func() {
+			if _, err := sc.V1PaymentIntents.Cancel(context.Background(), intent.ID, nil); err != nil {
+				t.Errorf("cleanup cancel payment intent %s: %v", intent.ID, err)
+			}
+		})
 		t.Fatalf("impossible to cancel %v payment intent: %v", intent.ID, e)
 	}
 

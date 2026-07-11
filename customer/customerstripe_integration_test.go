@@ -46,15 +46,16 @@ func TestNewStripe(t *testing.T) {
 	email := "email@email.com"
 	c, _ := appcurrency.New("EUR")
 
+	sc, e := appconfig.ClientForCurrency(c.GetISO4217())
+	if e != nil {
+		t.Fatalf("impossible to create Stripe client for cleanup: %v", e)
+	}
+
 	got, e := appcustomer.NewStripe(email, c)
 	if e != nil {
 		t.Fatalf("error during the appcustomer creation with Stripe: %v", e)
 	}
 
-	sc, e := appconfig.ClientForCurrency(c.GetISO4217())
-	if e != nil {
-		t.Fatalf("impossible to create Stripe client for cleanup: %v", e)
-	}
 	customerID := got.GetGatewayReference()
 	t.Cleanup(func() {
 		if _, err := sc.V1Customers.Delete(context.Background(), customerID, nil); err != nil {

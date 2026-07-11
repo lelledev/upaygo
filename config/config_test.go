@@ -169,3 +169,18 @@ func TestClientForCurrencyWithoutDefault(t *testing.T) {
 		t.Error("configuration without Stripe default API keys must return an error")
 	}
 }
+
+func TestClientForCurrencyOpWithoutDefault(t *testing.T) {
+	e := appconfig.ImportConfig(strings.NewReader(confStripeWithoutDefault))
+	if e != nil {
+		t.Errorf("error during the config import: %v", e)
+	}
+
+	_, e = appconfig.ClientForCurrencyOp("NOT_FOUND_CURRENCY", "payment intent capture")
+	if e == nil {
+		t.Error("configuration without Stripe default API keys must return an error")
+	}
+	if e != nil && !strings.Contains(e.Error(), "payment intent capture") {
+		t.Errorf("operation context missing from error, got: %v", e)
+	}
+}

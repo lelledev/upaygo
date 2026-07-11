@@ -47,14 +47,17 @@ func TestMain(m *testing.M) {
 func TestCreate(t *testing.T) {
 	cur, _ := appcurrency.New("EUR")
 	am := 2045
-	cus, e := appcustomer.NewStripe("email@email.com", cur)
-	if e != nil {
-		t.Fatalf("impossible to create a customer for testing: %v", e)
-	}
 
+	// Obtain cleanup client before creating Stripe resources so a client
+	// failure cannot leave them dangling without a registered t.Cleanup.
 	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
 	if e != nil {
 		t.Fatalf("impossible to create Stripe client for cleanup: %v", e)
+	}
+
+	cus, e := appcustomer.NewStripe("email@email.com", cur)
+	if e != nil {
+		t.Fatalf("impossible to create a customer for testing: %v", e)
 	}
 
 	// Register customer delete first so LIFO cleanup cancels the intent before
@@ -136,15 +139,16 @@ func TestCreateWithoutCustomer(t *testing.T) {
 	a, _ := appamount.New(am, cur.GetISO4217())
 	ps := apppaymentsource.New("pm_card_visa")
 
+	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
+	if e != nil {
+		t.Fatalf("impossible to create Stripe client for cleanup: %v", e)
+	}
+
 	pi, e := apppaymentintentcreate.Create(a, ps, nil)
 	if e != nil {
 		t.Fatalf("impossible to create a new payment intent: %v", e)
 	}
 
-	sc, e := appconfig.ClientForCurrency(cur.GetISO4217())
-	if e != nil {
-		t.Fatalf("impossible to create Stripe client for cleanup: %v", e)
-	}
 	intentID := pi.GetGatewayReference()
 	t.Cleanup(func() {
 		if _, err := sc.V1PaymentIntents.Cancel(context.Background(), intentID, nil); err != nil {

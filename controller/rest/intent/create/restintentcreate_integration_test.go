@@ -65,15 +65,17 @@ func Test(t *testing.T) {
 	var resI responseIntent
 
 	c, _ := appcurrency.New("EUR")
-	cus, e := appcustomer.NewStripe("email@email.com", c)
-	if e != nil {
-		t.Fatalf(errorRestCreateIntent, e)
-	}
 
 	sc, e := appconfig.ClientForCurrency(c.GetISO4217())
 	if e != nil {
 		t.Fatalf(errorRestCreateIntent, e)
 	}
+
+	cus, e := appcustomer.NewStripe("email@email.com", c)
+	if e != nil {
+		t.Fatalf(errorRestCreateIntent, e)
+	}
+
 	customerID := cus.GetGatewayReference()
 	t.Cleanup(func() {
 		if _, err := sc.V1Customers.Delete(context.Background(), customerID, nil); err != nil {
